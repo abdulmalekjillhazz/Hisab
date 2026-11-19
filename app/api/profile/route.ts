@@ -11,7 +11,7 @@ const schema = z.object({
   phone: z.string().optional(),
   email: z.string().email().or(z.literal('')).optional(),
   address: z.string().optional(),
-  avatar: z.string().max(350000).optional(), // DataURL (Base64 under ~250KB) or URL
+  avatar: z.string().max(480000).optional(), // DataURL for an image up to 350 KB
   currency: z.enum(['BDT', 'USD']),
   invoiceFooter: z.string().max(300).optional(),
   locale: z.enum(['en', 'bn']),
@@ -44,7 +44,9 @@ export async function PATCH(req: Request) {
       d.avatar !== undefined ? User.findByIdAndUpdate(me.userId, { avatar: d.avatar }) : null,
     ]);
     return s ? ok(s) : fail('Shop not found', 404);
-  } catch (err: any) {
-    return fail('Invalid shop profile data', 400);
+  } catch (err) {
+    if (err instanceof z.ZodError) return fail(err.issues[0]?.message || 'Invalid shop profile data', 400);
+    console.error('Shop profile update failed:', err);
+    return fail('Could not save shop profile. Please try again later.', 500);
   }
 }

@@ -120,8 +120,10 @@ export async function GET(_r: Request, props: { params: Promise<{ id: string }> 
         <View style={styles.headerBox}>
           <View>
             <Text style={styles.title}>{shop.name || 'Ashik Electric'}</Text>
+            {shop.ownerName ? <Text style={styles.subText}>Owner: {shop.ownerName}</Text> : null}
             {shop.address ? <Text style={styles.subText}>{shop.address}</Text> : null}
             {shop.phone ? <Text style={styles.subText}>Phone: {shop.phone}</Text> : null}
+            {shop.email ? <Text style={styles.subText}>Email: {shop.email}</Text> : null}
           </View>
           <View>
             <Text style={styles.badge}>CASH MEMO / INVOICE</Text>

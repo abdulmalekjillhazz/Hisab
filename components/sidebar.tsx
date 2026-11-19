@@ -14,7 +14,7 @@ const links = [
   ['/profile', '⚙', 'Shop Profile', 'দোকানের প্রোফাইল'],
 ];
 
-export function Sidebar() {
+export function Sidebar({ shopName = 'Ashik Electric', avatar = '' }: { shopName?: string; avatar?: string }) {
   const path = usePathname();
   const locale = useUIStore((s) => s.locale);
 
@@ -22,23 +22,26 @@ export function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-20 flex w-[250px] flex-col bg-sidebar px-4 py-6 text-slate-200 safe-top safe-bottom max-[700px]:w-[68px] max-[700px]:px-2">
       {/* Brand Header */}
       <div className="mb-8 flex items-center gap-3 px-2">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-teal to-blue shadow-md">
-          {/* Stylized electric & friendly node mark */}
-          <svg
-            className="h-6 w-6 text-sand"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-          </svg>
+        <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-teal to-blue shadow-md">
+          {avatar ? (
+            <img src={avatar} alt={`${shopName} logo`} className="h-full w-full object-cover" />
+          ) : (
+            <svg
+              className="h-6 w-6 text-sand"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+          )}
         </span>
         <span className="max-[700px]:hidden">
           <b className="block font-heading text-base font-bold text-white tracking-wide">
-            Ashik Electric
+            {shopName}
           </b>
           <small className="text-xs text-slate-400 font-mono">Store Manager</small>
         </span>

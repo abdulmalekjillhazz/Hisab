@@ -38,7 +38,11 @@ export function ProfilePage() {
 
   useEffect(() => {
     fetch('/api/profile')
-      .then((r) => r.json())
+      .then(async (r) => {
+        const x = await r.json();
+        if (!r.ok) throw new Error(x.error || 'Could not load shop profile');
+        return x;
+      })
       .then((x) => {
         if (x.data) {
           reset({
@@ -55,10 +59,11 @@ export function ProfilePage() {
             setAvatar(x.data.avatar);
           }
         }
-      });
+      })
+      .catch(() => toast.error('Could not load shop profile. Please refresh and try again.'));
   }, [reset]);
 
-  // Handle avatar upload with strict 200 KB limit
+  // Handle avatar upload with a 350 KB file-size limit.
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -92,17 +97,38 @@ export function ProfilePage() {
 
   async function save(d: Form) {
     setBusy(true);
-    const r = await fetch('/api/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...d, avatar }),
-    });
-    const j = await r.json();
-    setBusy(false);
-    if (!r.ok) return toast.error(j.error);
-    setLocale(d.locale);
-    window.dispatchEvent(new Event('profile-updated'));
-    toast.success('দোকান ও প্রোফাইল তথ্য সফলভাবে সেভ হয়েছে!');
+    try {
+      const r = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...d, avatar }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        toast.error(j.error || `Could not save profile (${r.status})`);
+        return;
+      }
+      if (j.data) {
+        reset({
+          name: j.data.name || d.name,
+          ownerName: j.data.ownerName || '',
+          phone: j.data.phone || '',
+          email: j.data.email || '',
+          address: j.data.address || '',
+          currency: j.data.currency || d.currency,
+          invoiceFooter: j.data.invoiceFooter || '',
+          locale: j.data.locale || d.locale,
+        });
+        setAvatar(j.data.avatar || '');
+      }
+      setLocale(d.locale);
+      window.dispatchEvent(new Event('profile-updated'));
+      toast.success('Shop profile saved successfully.');
+    } catch {
+      toast.error('Could not reach the server. Your changes were not confirmed.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function updateSecurity(e: React.FormEvent) {

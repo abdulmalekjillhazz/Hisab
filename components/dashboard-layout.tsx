@@ -113,6 +113,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const locale = useUIStore((s) => s.locale);
   const setLocale = useUIStore((s) => s.setLocale);
   const [avatar, setAvatar] = useState('');
+  const [shopName, setShopName] = useState('Ashik Electric');
+  const [ownerName, setOwnerName] = useState('');
 
   useEffect(() => {
     const v = localStorage.getItem('ae-locale');
@@ -120,16 +122,22 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }, [setLocale]);
 
   useEffect(() => {
-    const loadAvatar = () => {
+    const loadProfile = () => {
       fetch('/api/profile')
-        .then((r) => r.json())
-        .then((x) => setAvatar(x.data?.avatar || ''))
-        .catch(() => setAvatar(''));
+        .then(async (r) => {
+          const x = await r.json();
+          if (!r.ok || !x.data) return;
+          setAvatar(x.data.avatar || '');
+          setShopName(x.data.name || 'Ashik Electric');
+          setOwnerName(x.data.ownerName || '');
+          if (x.data.locale === 'bn' || x.data.locale === 'en') setLocale(x.data.locale);
+        })
+        .catch(() => {});
     };
-    loadAvatar();
-    window.addEventListener('profile-updated', loadAvatar);
-    return () => window.removeEventListener('profile-updated', loadAvatar);
-  }, []);
+    loadProfile();
+    window.addEventListener('profile-updated', loadProfile);
+    return () => window.removeEventListener('profile-updated', loadProfile);
+  }, [setLocale]);
 
   const currentTitle = PAGE_TITLES[pathname] || { en: 'Ashik Electric', bn: 'আশিক ইলেকট্রিক' };
 
@@ -137,7 +145,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="app-shell bg-bg text-ink">
       {/* Desktop/Tablet Sidebar (Strictly hidden on screens < 768px) */}
       <div className="hidden md:block">
-        <Sidebar />
+        <Sidebar shopName={shopName} avatar={avatar} />
       </div>
 
       {/* Main Content Area: Zero margin on mobile, margin only on desktop */}
@@ -161,7 +169,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 {locale === 'bn' ? currentTitle.bn : currentTitle.en}
               </h1>
               <p className="text-[10px] sm:text-xs text-muted font-medium">
-                {data?.user?.name ? `${data.user.name} • ` : ''}Ashik Electric Store
+                {ownerName || data?.user?.name ? `${ownerName || data?.user?.name} • ` : ''}{shopName}
               </p>
             </div>
           </div>
