@@ -29,8 +29,8 @@ const config: Config = {
         sidebar: '#0F172A',     // Slate 900 - Premium dark
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        heading: ['var(--font-sora)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'var(--font-bengali)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-sora)', 'var(--font-bengali)', 'var(--font-inter)', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       boxShadow: {
