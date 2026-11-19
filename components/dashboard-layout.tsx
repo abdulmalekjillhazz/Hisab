@@ -117,6 +117,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [shopName, setShopName] = useState('Ashik Electric');
   const [ownerName, setOwnerName] = useState('');
   const [category, setCategory] = useState('general');
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
+  useEffect(() => {
+    setSidebarExpanded(localStorage.getItem('hisab-sidebar-expanded') === 'true');
+  }, []);
+
+  function toggleSidebar() {
+    setSidebarExpanded((current) => {
+      const next = !current;
+      localStorage.setItem('hisab-sidebar-expanded', String(next));
+      return next;
+    });
+  }
 
   useEffect(() => {
     const v = localStorage.getItem('ae-locale');
@@ -153,11 +166,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="app-shell bg-bg text-ink">
       {/* Desktop/Tablet Sidebar (Strictly hidden on screens < 768px) */}
       <div className="hidden md:block">
-        <Sidebar shopName={shopName} avatar={avatar} category={category} />
+        <Sidebar shopName={shopName} avatar={avatar} category={category} expanded={sidebarExpanded} onToggle={toggleSidebar} />
       </div>
 
       {/* Main Content Area: Zero margin on mobile, margin only on desktop */}
-      <main className="min-h-screen px-3 py-3 safe-top pb-24 md:pb-6 md:ml-[250px] sm:px-6 sm:py-6">
+      <main className={`min-h-screen px-3 py-3 safe-top pb-24 transition-[margin] duration-300 md:pb-6 sm:px-6 sm:py-6 ${sidebarExpanded ? 'md:ml-[250px]' : 'md:ml-[76px]'}`}>
         {/* Top Header */}
         <header className="mb-3 flex min-w-0 items-center justify-between gap-2 border-b border-line/70 pb-2.5 sm:mb-5 sm:pb-3">
           <div className="flex min-w-0 items-center gap-2">

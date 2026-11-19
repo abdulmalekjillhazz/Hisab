@@ -114,6 +114,50 @@ button {
 .product-action-delete { border-color: #fecaca; background: #fffafa; color: #dc2626; }
 .product-action-page { height: 30px; width: 30px; background: #f8fafc; color: #475569; }
 
+.sidebar-rail { transition: width .24s cubic-bezier(.2,.8,.2,1); }
+.sidebar-link { border: 1px solid transparent; }
+.sidebar-link.is-active {
+  border-color: rgba(45, 212, 191, .22);
+  background: linear-gradient(105deg, rgba(15, 118, 110, .26), rgba(37, 99, 235, .2));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 5px 12px rgba(2, 6, 23, .2);
+}
+.sidebar-link:hover { transform: translateX(2px); }
+.sidebar-link:active { transform: translateY(1px); }
+.sidebar-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 1px solid rgba(148, 163, 184, .12);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #24344d, #111c30 70%);
+  color: #a5b4c9;
+  box-shadow: inset 1px 1px 1px rgba(255,255,255,.1), inset -1px -2px 3px rgba(2,6,23,.35), 0 3px 5px rgba(2,6,23,.22);
+  transition: transform .2s ease, color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.sidebar-icon svg { width: 19px; height: 19px; filter: drop-shadow(0 1px 1px rgba(2,6,23,.35)); }
+.sidebar-icon.is-active {
+  border-color: rgba(255,255,255,.24);
+  background: linear-gradient(145deg, #2dd4bf, #0f766e 53%, #2563eb);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,.42), inset -2px -3px 4px rgba(15,23,42,.18), 0 3px 0 #0f4c81, 0 6px 10px rgba(14,116,144,.28);
+}
+.sidebar-link:hover .sidebar-icon:not(.is-active) { color: #5eead4; transform: translateY(-1px); }
+.sidebar-toggle {
+  border: 1px solid rgba(148, 163, 184, .14);
+  background: linear-gradient(145deg, rgba(30,41,59,.95), rgba(15,23,42,.95));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 3px 6px rgba(2,6,23,.18);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.sidebar-toggle:hover { background: linear-gradient(145deg, #263850, #142238); transform: translateY(-1px); }
+.sidebar-toggle:active { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(2,6,23,.35); }
+.sidebar-status { box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 5px 12px rgba(2,6,23,.16); }
+.status-dot { width: 8px; height: 8px; border-radius: 999px; background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.12), 0 0 9px rgba(52,211,153,.55); }
+.sidebar-signout { transition: transform .18s ease, background .18s ease, color .18s ease; }
+.sidebar-signout:active { transform: translateY(1px); }
+
 @layer components {
   .panel {
     @apply rounded-card border border-line bg-white p-4 sm:p-5 shadow-card transition-all;
