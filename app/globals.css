@@ -58,7 +58,8 @@ button {
 
 .mobile-bottom-nav {
   bottom: 0;
-  min-height: 64px;
+  min-height: 72px;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
 
 /* Colored, tactile navigation icons without increasing the bar height. */
@@ -118,7 +119,7 @@ button {
     @apply rounded-card border border-line bg-white p-4 sm:p-5 shadow-card transition-all;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
     @apply btn bg-blue text-white hover:bg-blue/90 shadow-sm;
@@ -130,7 +131,7 @@ button {
     @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60;
   }
   .field {
-    @apply w-full rounded-xl border border-line bg-white px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-ink placeholder:text-slate-400 outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20;
+    @apply min-h-11 w-full rounded-xl border border-line bg-white px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-ink placeholder:text-slate-400 outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20;
   }
   .table-wrap {
     @apply overflow-auto rounded-xl border border-line;

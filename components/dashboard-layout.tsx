@@ -216,7 +216,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <NavIcon type={item.type} active={true} />
                 </div>
                 <span
-                  className={`text-[10px] mt-0.5 font-bold tracking-tight ${
+                  className={`text-[11px] mt-0.5 font-bold tracking-tight ${
                     active ? 'text-blue' : 'text-slate-600'
                   }`}
                 >
@@ -240,7 +240,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               >
                 <NavIcon type={item.type} active={active} />
               </div>
-              <span className="text-[10px] mt-0.5 font-medium tracking-tight">
+              <span className="text-[11px] mt-0.5 font-medium tracking-tight">
                 {locale === 'bn' ? item.bn : item.en}
               </span>
             </Link>

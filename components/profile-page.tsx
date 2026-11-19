@@ -152,10 +152,10 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="space-y-5 max-w-2xl pb-10">
+    <div className="max-w-4xl space-y-5 pb-10">
       <div className="mb-2">
-        <h2 className="font-heading text-lg sm:text-xl font-bold text-ink">Shop & Account Settings</h2>
-        <p className="text-xs text-muted">Manage your shop identity, profile picture, password and security PIN.</p>
+        <h2 className="font-heading text-xl sm:text-2xl font-bold text-ink">Shop & Account Settings</h2>
+        <p className="mt-1 text-sm text-muted">Manage your shop identity, profile picture, password and security PIN.</p>
       </div>
 
       {/* Main Profile & Shop Form */}
@@ -216,7 +216,7 @@ export function ProfilePage() {
         </div>
 
         {/* Input Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {[
             ['name', 'দোকানের নাম (Shop name) *'],
             ['ownerName', 'মালিকের নাম (Owner name)'],
@@ -225,23 +225,23 @@ export function ProfilePage() {
             ['address', 'ঠিকানা (Address)'],
             ['invoiceFooter', 'মেমোর নিচের বার্তা (Invoice footer)'],
           ].map(([k, l]) => (
-            <label key={k} className="block text-xs font-semibold text-muted">
+            <label key={k} className="block text-xs font-semibold text-muted sm:text-sm">
               {l}
-              <input className="field mt-1 text-ink text-xs sm:text-sm" {...register(k as keyof Form)} />
+              <input className="field mt-1.5 text-ink text-sm" {...register(k as keyof Form)} />
             </label>
           ))}
 
-          <label className="block text-xs font-semibold text-muted">
+          <label className="block text-xs font-semibold text-muted sm:text-sm">
             কারেন্সি (Currency)
-            <select className="field mt-1 text-xs sm:text-sm" {...register('currency')}>
+            <select className="field mt-1.5 text-sm" {...register('currency')}>
               <option value="BDT">BDT — ৳ (টাকা)</option>
               <option value="USD">USD — $ (ডলার)</option>
             </select>
           </label>
 
-          <label className="block text-xs font-semibold text-muted">
+          <label className="block text-xs font-semibold text-muted sm:text-sm">
             ভাষা (Language)
-            <select className="field mt-1 text-xs sm:text-sm" {...register('locale')}>
+            <select className="field mt-1.5 text-sm" {...register('locale')}>
               <option value="bn">বাংলা (Bengali)</option>
               <option value="en">English (ইংরেজি)</option>
             </select>
