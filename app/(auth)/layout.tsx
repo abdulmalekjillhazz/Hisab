@@ -1,0 +1,1 @@
+export default function AuthLayout({children}:{children:React.ReactNode}){return <main className="grid min-h-screen place-items-center bg-gradient-to-br from-bg via-white to-indigo-50 p-4">{children}</main>}

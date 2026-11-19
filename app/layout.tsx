@@ -1,0 +1,45 @@
+import type { Metadata, Viewport } from 'next';
+import { Inter, Sora, JetBrains_Mono } from 'next/font/google';
+import './globals.css';
+import { Providers } from '@/components/providers';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const sora = Sora({
+  subsets: ['latin'],
+  variable: '--font-sora',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#1E293B',
+};
+
+export const metadata: Metadata = {
+  title: 'Ashik Electric — Store Manager',
+  description: 'Smart inventory, billing and sales management for electric hardware store.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${sora.variable} ${mono.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased bg-bg text-ink selection:bg-teal selection:text-white">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}

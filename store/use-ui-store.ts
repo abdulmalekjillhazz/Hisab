@@ -1,0 +1,1 @@
+'use client';import {create} from 'zustand';type Locale='en'|'bn';type State={locale:Locale;setLocale:(locale:Locale)=>void};export const useUIStore=create<State>()((set)=>({locale:'en',setLocale:(locale)=>{set({locale});if(typeof window!=='undefined')localStorage.setItem('ae-locale',locale)}}));

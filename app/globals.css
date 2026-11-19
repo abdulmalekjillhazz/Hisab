@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #F8FAFC;
+  color: #1E293B;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sora), var(--font-inter), sans-serif;
+  letter-spacing: -0.015em;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Safe area insets for mobile & Capacitor Android status/navigation bars */
+.safe-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 12px);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+}
+
+/* Keep the fixed mobile navigation inside the visual viewport on mobile browsers
+   and Android WebView when the address bar or virtual keyboard changes height. */
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+.mobile-bottom-nav {
+  bottom: 0;
+  min-height: 64px;
+}
+
+/* Colored, tactile navigation icons without increasing the bar height. */
+.bottom-nav-icon {
+  display: grid;
+  height: 29px;
+  width: 29px;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  opacity: .65;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .45), 0 2px 0 rgba(15, 23, 42, .22), 0 4px 7px rgba(15, 23, 42, .16);
+  transition: transform .18s ease, opacity .18s ease, box-shadow .18s ease;
+}
+.bottom-nav-icon svg { filter: brightness(0) invert(1); }
+.bottom-nav-icon.is-active { opacity: 1; transform: translateY(-2px); outline: 3px solid #22c55e; outline-offset: 2px; box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5), 0 3px 0 rgba(15, 23, 42, .24), 0 6px 10px rgba(15, 23, 42, .2), 0 0 9px rgba(34, 197, 94, .65); }
+.bottom-nav-icon-home { background: linear-gradient(145deg, #38bdf8, #2563eb); }
+.bottom-nav-icon-products { background: linear-gradient(145deg, #a78bfa, #6d28d9); }
+.bottom-nav-icon-customers { background: linear-gradient(145deg, #fb7185, #e11d48); }
+.bottom-nav-icon-reports { background: linear-gradient(145deg, #34d399, #059669); }
+
+/* High-contrast icon actions for fast POS use on touch screens. */
+.sales-action-icon {
+  display: inline-grid;
+  height: 38px;
+  width: 38px;
+  place-items: center;
+  border-radius: 13px;
+  font-size: 20px;
+  line-height: 1;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.sales-action-icon:active { transform: translateY(2px); box-shadow: none; }
+.sales-action-icon-new { background: linear-gradient(145deg, #38bdf8, #2563eb); box-shadow: 0 4px 0 #1d4ed8, 0 8px 14px rgba(37, 99, 235, .28); }
+.sales-action-icon-invoice { background: linear-gradient(145deg, #ede9fe, #ddd6fe); box-shadow: 0 2px 0 #c4b5fd, 0 4px 8px rgba(109, 40, 217, .14); }
+.sales-action-icon-return { background: linear-gradient(145deg, #fb7185, #dc2626); color: #fff; box-shadow: 0 3px 0 #991b1b, 0 6px 12px rgba(220, 38, 38, .32); }
+.sales-action-icon-sm { height: 36px; width: 38px; border-radius: 11px; font-size: 18px; }
+
+.icon-action { display: inline-grid; height: 32px; width: 32px; place-items: center; border-radius: 9px; font-size: 16px; font-weight: 800; transition: transform .16s ease, box-shadow .16s ease; }
+.icon-action:active { transform: translateY(2px); box-shadow: none; }
+.icon-action-stock { background: linear-gradient(145deg, #6ee7b7, #16a34a); color: #fff; box-shadow: 0 3px 0 #15803d, 0 6px 12px rgba(22, 163, 74, .28); }
+.icon-action-edit { background: linear-gradient(145deg, #c4b5fd, #7c3aed); color: #fff; box-shadow: 0 3px 0 #5b21b6, 0 6px 12px rgba(124, 58, 237, .25); }
+.icon-action-delete { background: linear-gradient(145deg, #fb7185, #dc2626); color: #fff; box-shadow: 0 3px 0 #991b1b, 0 6px 12px rgba(220, 38, 38, .32); }
+.icon-action-page { background: linear-gradient(145deg, #e0f2fe, #93c5fd); color: #1d4ed8; box-shadow: 0 2px 0 #60a5fa, 0 4px 8px rgba(37, 99, 235, .18); }
+
+/* Products uses quiet, compact controls so product information stays primary. */
+.product-action { display: inline-grid; height: 28px; width: 28px; place-items: center; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; color: #475569; font-size: 14px; font-weight: 700; transition: background .15s ease, transform .15s ease; }
+.product-action:active { transform: scale(.94); }
+.product-action-add { height: 32px; width: 32px; border-color: #bfdbfe; background: #eff6ff; color: #2563eb; font-size: 19px; }
+.product-action-stock { color: #15803d; }
+.product-action-edit { color: #6d28d9; }
+.product-action-delete { border-color: #fecaca; background: #fffafa; color: #dc2626; }
+.product-action-page { height: 30px; width: 30px; background: #f8fafc; color: #475569; }
+
+@layer components {
+  .panel {
+    @apply rounded-card border border-line bg-white p-4 sm:p-5 shadow-card transition-all;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-blue text-white hover:bg-blue/90 shadow-sm;
+  }
+  .btn-accent {
+    @apply btn bg-sand text-white hover:bg-sand/90 shadow-sm;
+  }
+  .btn-soft {
+    @apply btn bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60;
+  }
+  .field {
+    @apply w-full rounded-xl border border-line bg-white px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-ink outline-none transition focus:border-blue focus:ring-1 focus:ring-blue/30;
+  }
+  .table-wrap {
+    @apply overflow-auto rounded-xl border border-line;
+  }
+  table {
+    @apply w-full border-collapse whitespace-nowrap bg-white text-xs sm:text-sm;
+  }
+  th {
+    @apply border-b border-line bg-slate-50 px-3 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider text-muted;
+  }
+  td {
+    @apply border-b border-line/50 px-3 py-2.5;
+  }
+  tr:last-child td {
+    @apply border-0;
+  }
+  tr:hover td {
+    @apply bg-slate-50/50;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold;
+  }
+}
