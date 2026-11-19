@@ -30,8 +30,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Ashik Electric — Store Manager',
-  description: 'Smart inventory, billing and sales management for electric hardware store.',
+  title: 'Hisab — Shop Manager',
+  description: 'Manage your shop products, sales, customers and reports in one place.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
