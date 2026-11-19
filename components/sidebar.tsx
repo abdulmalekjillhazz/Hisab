@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useUIStore } from '@/store/use-ui-store';
+import { BusinessCategoryIcon } from '@/components/business-category-icon';
 
 const links = [
   ['/dashboard', '▦', 'Dashboard', 'ড্যাশবোর্ড'],
@@ -14,7 +15,7 @@ const links = [
   ['/profile', '⚙', 'Shop Profile', 'দোকানের প্রোফাইল'],
 ];
 
-export function Sidebar({ shopName = 'Ashik Electric', avatar = '' }: { shopName?: string; avatar?: string }) {
+export function Sidebar({ shopName = 'Ashik Electric', avatar = '', category = 'general' }: { shopName?: string; avatar?: string; category?: string }) {
   const path = usePathname();
   const locale = useUIStore((s) => s.locale);
 
@@ -26,17 +27,7 @@ export function Sidebar({ shopName = 'Ashik Electric', avatar = '' }: { shopName
           {avatar ? (
             <img src={avatar} alt={`${shopName} logo`} className="h-full w-full object-cover" />
           ) : (
-            <svg
-              className="h-6 w-6 text-sand"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
+            <BusinessCategoryIcon category={category} className="h-6 w-6 text-white" />
           )}
         </span>
         <span className="max-[700px]:hidden">

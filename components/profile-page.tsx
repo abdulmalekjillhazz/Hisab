@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
+import { BUSINESS_CATEGORIES } from '@/lib/business-categories';
+import { BusinessCategoryIcon } from '@/components/business-category-icon';
 
 const schema = z.object({
   name: z.string().min(2),
@@ -13,6 +15,7 @@ const schema = z.object({
   phone: z.string().optional(),
   email: z.string().email().or(z.literal('')).optional(),
   address: z.string().optional(),
+  category: z.enum(['electrical', 'grocery', 'clothing', 'pharmacy', 'electronics', 'restaurant', 'general']),
   currency: z.enum(['BDT', 'USD']),
   invoiceFooter: z.string().optional(),
   locale: z.enum(['en', 'bn']),
@@ -32,7 +35,7 @@ export function ProfilePage() {
   const [securityPin, setSecurityPin] = useState('');
   const [secBusy, setSecBusy] = useState(false);
 
-  const { register, handleSubmit, reset } = useForm<Form>({
+  const { register, handleSubmit, reset, watch } = useForm<Form>({
     resolver: zodResolver(schema),
   });
 
@@ -51,6 +54,7 @@ export function ProfilePage() {
             phone: x.data.phone || '',
             email: x.data.email || '',
             address: x.data.address || '',
+            category: x.data.category || 'general',
             currency: x.data.currency || 'BDT',
             invoiceFooter: x.data.invoiceFooter || '',
             locale: x.data.locale || 'en',
@@ -115,6 +119,7 @@ export function ProfilePage() {
           phone: j.data.phone || '',
           email: j.data.email || '',
           address: j.data.address || '',
+          category: j.data.category || d.category,
           currency: j.data.currency || d.currency,
           invoiceFooter: j.data.invoiceFooter || '',
           locale: j.data.locale || d.locale,
@@ -230,6 +235,22 @@ export function ProfilePage() {
               <input className="field mt-1.5 text-ink text-sm" {...register(k as keyof Form)} />
             </label>
           ))}
+
+          <label className="block text-xs font-semibold text-muted sm:text-sm">
+            Business category
+            <select className="field mt-1.5 text-sm" {...register('category')}>
+              {BUSINESS_CATEGORIES.map((item) => (
+                <option key={item.value} value={item.value}>{item.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal to-blue text-white shadow-md">
+              <BusinessCategoryIcon category={watch('category')} className="h-5 w-5" />
+            </span>
+            <span className="text-sm font-medium text-ink">Category icon preview</span>
+          </div>
 
           <label className="block text-xs font-semibold text-muted sm:text-sm">
             কারেন্সি (Currency)

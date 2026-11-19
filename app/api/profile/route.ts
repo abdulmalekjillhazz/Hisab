@@ -12,6 +12,7 @@ const schema = z.object({
   email: z.string().email().or(z.literal('')).optional(),
   address: z.string().optional(),
   avatar: z.string().max(480000).optional(), // DataURL for an image up to 350 KB
+  category: z.enum(['electrical', 'grocery', 'clothing', 'pharmacy', 'electronics', 'restaurant', 'general']).default('general'),
   currency: z.enum(['BDT', 'USD']),
   invoiceFooter: z.string().max(300).optional(),
   locale: z.enum(['en', 'bn']),

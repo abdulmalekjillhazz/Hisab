@@ -38,6 +38,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'Hisab — Shop Manager',
   description: 'Manage your shop products, sales, customers and reports in one place.',
+  icons: {
+    icon: [{ url: '/api/shop-icon', type: 'image/svg+xml' }],
+    shortcut: ['/api/shop-icon'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -115,6 +115,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [avatar, setAvatar] = useState('');
   const [shopName, setShopName] = useState('Ashik Electric');
   const [ownerName, setOwnerName] = useState('');
+  const [category, setCategory] = useState('general');
 
   useEffect(() => {
     const v = localStorage.getItem('ae-locale');
@@ -130,6 +131,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           setAvatar(x.data.avatar || '');
           setShopName(x.data.name || 'Ashik Electric');
           setOwnerName(x.data.ownerName || '');
+          setCategory(x.data.category || 'general');
           if (x.data.locale === 'bn' || x.data.locale === 'en') setLocale(x.data.locale);
         })
         .catch(() => {});
@@ -139,13 +141,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('profile-updated', loadProfile);
   }, [setLocale]);
 
+  useEffect(() => {
+    const iconLink = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
+    if (iconLink) iconLink.href = `/api/shop-icon?category=${encodeURIComponent(category)}&v=1`;
+  }, [category]);
+
   const currentTitle = PAGE_TITLES[pathname] || { en: 'Ashik Electric', bn: 'আশিক ইলেকট্রিক' };
 
   return (
     <div className="app-shell bg-bg text-ink">
       {/* Desktop/Tablet Sidebar (Strictly hidden on screens < 768px) */}
       <div className="hidden md:block">
-        <Sidebar shopName={shopName} avatar={avatar} />
+        <Sidebar shopName={shopName} avatar={avatar} category={category} />
       </div>
 
       {/* Main Content Area: Zero margin on mobile, margin only on desktop */}
