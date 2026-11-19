@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useUIStore } from '@/store/use-ui-store';
 import { dict } from '@/lib/i18n';
+import { getCachedJson } from '@/lib/client-api-cache';
 
 const localKey = (x: Date) =>
   `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
@@ -18,8 +19,7 @@ export function DashboardHome() {
   useEffect(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
-    fetch(`/api/reports?from=${localKey(d)}&to=${localKey(new Date())}`)
-      .then((r) => r.json())
+    getCachedJson(`/api/reports?from=${localKey(d)}&to=${localKey(new Date())}`)
       .then((x) => {
         if (x.error) throw Error(x.error);
         setData(x.data);

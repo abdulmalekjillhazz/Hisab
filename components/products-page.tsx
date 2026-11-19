@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
 import { dict } from '@/lib/i18n';
+import { getCachedJson, invalidateApiCache } from '@/lib/client-api-cache';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -55,10 +56,12 @@ export function ProductsPage() {
     });
     if (category) params.set('category', category);
     if (lowStockOnly) params.set('lowStock', '1');
-    const r = await fetch(`/api/products?${params.toString()}`);
-    const j = await r.json();
-    if (r.ok) setData(j.data);
-    else toast.error(j.error);
+    try {
+      const j = await getCachedJson(`/api/products?${params.toString()}`);
+      setData(j.data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not load products');
+    }
   }
 
   useEffect(() => {
@@ -111,6 +114,7 @@ export function ProductsPage() {
     });
     const j = await r.json();
     if (!r.ok) return toast.error(j.error);
+    invalidateApiCache('/api/products', '/api/reports');
     toast.success(
       locale === 'bn'
         ? `স্টক আপডেট হয়েছে: বর্তমান স্টক ${j.data.qty} ${p.unit}`
@@ -159,6 +163,7 @@ export function ProductsPage() {
     const j = await r.json();
     setBusy(false);
     if (!r.ok) return toast.error(j.error);
+    invalidateApiCache('/api/products', '/api/reports', '/api/sales');
     toast.success(locale === 'bn' ? 'পণ্য সেভ হয়েছে' : 'Product saved');
     setOpen(false);
     load();
@@ -168,6 +173,7 @@ export function ProductsPage() {
     if (!confirm(locale === 'bn' ? 'পণ্যটি মুছে ফেলতে চান?' : 'Delete this product?')) return;
     const r = await fetch(`/api/products/${id}`, { method: 'DELETE' });
     const j = await r.json();
+    if (r.ok) invalidateApiCache('/api/products', '/api/reports', '/api/sales');
     r.ok ? toast.success('Product deleted') : toast.error(j.error);
     load();
   }

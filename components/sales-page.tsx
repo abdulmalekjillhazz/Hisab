@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
 import { dict } from '@/lib/i18n';
+import { getCachedJson, invalidateApiCache } from '@/lib/client-api-cache';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -79,12 +80,12 @@ export function SalesPage() {
   }, [netTotal, paymentMethod, setValue]);
 
   function loadCatalogAndCustomers() {
-    fetch('/api/products?limit=500')
-      .then((r) => r.json())
-      .then((x) => setProducts(x.data?.items || []));
-    fetch('/api/customers?limit=200')
-      .then((r) => r.json())
-      .then((x) => setCustomers(x.data?.items || []));
+    getCachedJson('/api/products?limit=500')
+      .then((x) => setProducts(x.data?.items || []))
+      .catch((error) => toast.error(error instanceof Error ? error.message : 'Could not load products'));
+    getCachedJson('/api/customers?limit=200')
+      .then((x) => setCustomers(x.data?.items || []))
+      .catch((error) => toast.error(error instanceof Error ? error.message : 'Could not load customers'));
   }
 
   useEffect(() => {
@@ -92,10 +93,12 @@ export function SalesPage() {
   }, []);
 
   async function load() {
-    const r = await fetch(`/api/sales?page=${page}&limit=20&q=${encodeURIComponent(q)}`);
-    const j = await r.json();
-    if (r.ok) setData(j.data);
-    else toast.error(j.error);
+    try {
+      const j = await getCachedJson(`/api/sales?page=${page}&limit=20&q=${encodeURIComponent(q)}`);
+      setData(j.data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not load sales');
+    }
   }
 
   useEffect(() => {
@@ -119,6 +122,7 @@ export function SalesPage() {
     const j = await r.json();
     setBusy(false);
     if (!r.ok) return toast.error(j.error);
+    invalidateApiCache('/api/sales', '/api/products', '/api/customers', '/api/reports');
     toast.success(
       locale === 'bn'
         ? 'বিক্রি সম্পন্ন হয়েছে এবং স্টক আপডেট হয়েছে!'
@@ -142,6 +146,7 @@ export function SalesPage() {
     const r = await fetch(`/api/sales/${s._id}`, { method: 'DELETE' });
     const j = await r.json();
     if (!r.ok) return toast.error(j.error);
+    invalidateApiCache('/api/sales', '/api/products', '/api/customers', '/api/reports');
     toast.success(locale === 'bn' ? 'বিল রিটার্ন ও স্টক পুনরুদ্ধার হয়েছে' : 'Sale returned & stock restored');
     load();
     loadCatalogAndCustomers();

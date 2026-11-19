@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
+import { getCachedJson, invalidateApiCache } from '@/lib/client-api-cache';
 
 export function CustomersPage() {
   const [d, setD] = useState<any>(null);
@@ -17,13 +18,13 @@ export function CustomersPage() {
   const locale = useUIStore((s) => s.locale);
 
   function load() {
-    fetch(
+    getCachedJson(
       `/api/customers?page=${page}&limit=20&q=${encodeURIComponent(q)}${
         dueOnly ? '&dueOnly=1' : ''
       }`
     )
-      .then((r) => r.json())
-      .then((x) => (x.error ? toast.error(x.error) : setD(x.data)));
+      .then((x) => setD(x.data))
+      .catch((error) => toast.error(error instanceof Error ? error.message : 'Could not load customers'));
   }
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export function CustomersPage() {
     const j = await r.json();
     setBusy(false);
     if (!r.ok) return toast.error(j.error);
+    invalidateApiCache('/api/customers', '/api/reports', '/api/sales');
     toast.success(
       locale === 'bn'
         ? `৳${Number(amount).toLocaleString()} বাকি আদায় সম্পন্ন হয়েছে!`

@@ -6,6 +6,7 @@ import { useUIStore } from '@/store/use-ui-store';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { prefetchPageData } from '@/lib/client-route-prefetch';
 
 const PAGE_TITLES: Record<string, { en: string; bn: string }> = {
   '/dashboard': { en: 'Dashboard', bn: 'ড্যাশবোর্ড' },
@@ -213,6 +214,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                onMouseEnter={() => prefetchPageData(item.href)}
+                onFocus={() => prefetchPageData(item.href)}
+                onTouchStart={() => prefetchPageData(item.href)}
                 className="flex flex-1 flex-col items-center justify-center active:scale-95 transition-transform"
               >
                 <div
@@ -237,6 +241,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
+              onMouseEnter={() => prefetchPageData(item.href)}
+              onFocus={() => prefetchPageData(item.href)}
+              onTouchStart={() => prefetchPageData(item.href)}
               className={`flex flex-1 flex-col items-center justify-center py-1 rounded-xl transition ${
                 active ? 'text-blue font-bold' : 'text-slate-500 hover:text-slate-800'
               }`}

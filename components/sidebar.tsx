@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useUIStore } from '@/store/use-ui-store';
 import { BusinessCategoryIcon } from '@/components/business-category-icon';
+import { prefetchPageData } from '@/lib/client-route-prefetch';
+import { clearApiCache } from '@/lib/client-api-cache';
 
 const links = [
   ['/dashboard', '▦', 'Dashboard', 'ড্যাশবোর্ড'],
@@ -47,6 +49,9 @@ export function Sidebar({ shopName = 'Ashik Electric', avatar = '', category = '
               key={href}
               href={href}
               title={en}
+              onMouseEnter={() => prefetchPageData(href)}
+              onFocus={() => prefetchPageData(href)}
+              onTouchStart={() => prefetchPageData(href)}
               className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 font-medium transition max-[700px]:justify-center ${
                 active
                   ? 'bg-gradient-to-r from-teal to-blue text-white shadow-card font-semibold'
@@ -73,7 +78,10 @@ export function Sidebar({ shopName = 'Ashik Electric', avatar = '', category = '
 
       {/* Sign Out Button */}
       <button
-        onClick={() => signOut({ callbackUrl: '/login' })}
+        onClick={() => {
+          clearApiCache();
+          signOut({ callbackUrl: '/login' });
+        }}
         className="mt-3 flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm text-slate-400 transition hover:bg-white/5 hover:text-white max-[700px]:px-1 max-[700px]:justify-center"
       >
         <span>↪</span>

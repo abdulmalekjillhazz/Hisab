@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
 import { BUSINESS_CATEGORIES } from '@/lib/business-categories';
 import { BusinessCategoryIcon } from '@/components/business-category-icon';
+import { getCachedJson, invalidateApiCache } from '@/lib/client-api-cache';
 
 const schema = z.object({
   name: z.string().min(2),
@@ -40,12 +41,7 @@ export function ProfilePage() {
   });
 
   useEffect(() => {
-    fetch('/api/profile')
-      .then(async (r) => {
-        const x = await r.json();
-        if (!r.ok) throw new Error(x.error || 'Could not load shop profile');
-        return x;
-      })
+    getCachedJson('/api/profile')
       .then((x) => {
         if (x.data) {
           reset({
@@ -127,6 +123,7 @@ export function ProfilePage() {
         setAvatar(j.data.avatar || '');
       }
       setLocale(d.locale);
+      invalidateApiCache('/api/profile');
       window.dispatchEvent(new Event('profile-updated'));
       toast.success('Shop profile saved successfully.');
     } catch {

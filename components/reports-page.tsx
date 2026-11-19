@@ -5,6 +5,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
 import { dict } from '@/lib/i18n';
+import { getCachedJson } from '@/lib/client-api-cache';
 
 const localKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -18,9 +19,12 @@ export function ReportsPage() {
   const t = dict[locale];
 
   async function load(customFrom = from, customTo = to) {
-    const r = await fetch(`/api/reports?from=${customFrom}&to=${customTo}`);
-    const j = await r.json();
-    r.ok ? setD(j.data) : toast.error(j.error);
+    try {
+      const j = await getCachedJson(`/api/reports?from=${customFrom}&to=${customTo}`);
+      setD(j.data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not load reports');
+    }
   }
 
   useEffect(() => {
