@@ -38,9 +38,8 @@ export async function POST(req: Request) {
     if (createdShopId) {
       await Shop.findByIdAndDelete(createdShopId).catch(() => null);
     }
-    return fail(
-      e instanceof z.ZodError ? e.issues[0].message : 'Could not create account',
-      400
-    );
+    if (e instanceof z.ZodError) return fail(e.issues[0].message, 400);
+    console.error('Signup failed:', e);
+    return fail('Could not create account. Please try again later.', 500);
   }
 }
