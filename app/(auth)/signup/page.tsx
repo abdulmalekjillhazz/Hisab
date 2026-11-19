@@ -17,20 +17,29 @@ export default function Signup() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const r = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, shopName, email, password }),
-    });
-    const j = await r.json();
-    if (!r.ok) {
+    try {
+      const r = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, shopName, email, password }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        toast.error(j.error || `Could not create account (${r.status})`);
+        return;
+      }
+      const login = await signIn('credentials', { email, password, redirect: false });
+      if (login?.error) {
+        toast.error('Account created; sign in to continue');
+        router.push('/login');
+        return;
+      }
+      router.push('/dashboard');
+    } catch {
+      toast.error('Could not reach the signup service. Open the app using its primary Vercel domain and try again.');
+    } finally {
       setBusy(false);
-      return toast.error(j.error);
     }
-    const login = await signIn('credentials', { email, password, redirect: false });
-    setBusy(false);
-    if (login?.error) return toast.error('Account created; sign in to continue');
-    router.push('/dashboard');
   }
 
   return (
