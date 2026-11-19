@@ -9,7 +9,7 @@ import { PasswordInput } from '@/components/password-input';
 
 export default function Signup() {
   const [name, setName] = useState('');
-  const [shopName, setShopName] = useState('Ashik Electric');
+  const [shopName, setShopName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);

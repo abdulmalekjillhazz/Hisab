@@ -77,7 +77,7 @@ export default function Login() {
               </svg>
             </span>
             <h1 className="font-heading text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Welcome back</h1>
-            <p className="mt-1 text-xs sm:text-sm text-muted">Sign in to Ashik Electric workspace</p>
+            <p className="mt-1 text-xs sm:text-sm text-muted">Sign in to your Hisab workspace</p>
           </div>
 
           <label className="block text-xs font-semibold text-slate-700 sm:text-sm">

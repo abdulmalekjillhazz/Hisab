@@ -2,7 +2,7 @@ export type Locale = 'en' | 'bn';
 
 export const dict = {
   en: {
-    welcomeTitle: 'Welcome to Ashik Electric',
+    welcomeTitle: 'Welcome to Hisab',
     welcomeSub: 'Manage electric goods, track sales, profit, due ledger & stock alerts.',
     createSaleBtn: '＋ Create a Sale (POS)',
     todaySales: "Today's Sales",

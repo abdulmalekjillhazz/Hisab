@@ -7,6 +7,7 @@ import { useUIStore } from '@/store/use-ui-store';
 import { BusinessCategoryIcon } from '@/components/business-category-icon';
 import { prefetchPageData } from '@/lib/client-route-prefetch';
 import { clearApiCache } from '@/lib/client-api-cache';
+import { useSession } from 'next-auth/react';
 
 const links = [
   { href: '/dashboard', icon: 'dashboard', en: 'Dashboard', bn: 'ড্যাশবোর্ড' },
@@ -33,7 +34,7 @@ function SidebarIcon({ type, active }: { type: (typeof links)[number]['icon']; a
 }
 
 export function Sidebar({
-  shopName = 'Ashik Electric',
+  shopName = 'My Shop',
   avatar = '',
   category = 'general',
   expanded,
@@ -47,6 +48,7 @@ export function Sidebar({
 }) {
   const path = usePathname();
   const locale = useUIStore((s) => s.locale);
+  const { data: session } = useSession();
 
   return (
     <aside className={`sidebar-rail fixed inset-y-0 left-0 z-20 flex flex-col bg-sidebar py-5 text-slate-200 safe-top safe-bottom ${expanded ? 'w-[250px] px-4' : 'w-[76px] px-2'}`}>
@@ -94,6 +96,10 @@ export function Sidebar({
             </Link>
           );
         })}
+        {session?.user?.isSuperAdmin && <Link href="/admin" title={expanded ? undefined : 'Super Admin'} className={`sidebar-link flex min-h-12 items-center rounded-2xl text-sm font-medium transition-all ${expanded ? 'gap-3 px-3' : 'justify-center px-0'} ${path.startsWith('/admin') ? 'is-active text-white' : 'text-slate-300 hover:bg-white/[.06] hover:text-white'}`}>
+          <span className={`sidebar-icon ${path.startsWith('/admin') ? 'is-active' : ''}`}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+          {expanded && <span>Super Admin</span>}
+        </Link>}
       </nav>
 
       {expanded && (

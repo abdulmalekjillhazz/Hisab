@@ -22,6 +22,20 @@ html.dark body {
   color: #e7eef7;
 }
 
+/* Super Admin uses the same theme tokens as the rest of the dashboard. */
+.dark .admin-page { color: #e7eef7; }
+.dark .admin-page .bg-card { background-color: #15283c !important; }
+.dark .admin-page .bg-bg { background-color: #102236 !important; }
+.dark .admin-page .border-line { border-color: #29445b !important; }
+.dark .admin-page .text-ink { color: #e7eef7 !important; }
+.dark .admin-page .text-muted { color: #a9bed0 !important; }
+.dark .admin-page .divide-line > :not([hidden]) ~ :not([hidden]) { border-color: #29445b !important; }
+.dark .admin-page .bg-emerald-500\/10 { background-color: rgb(16 185 129 / .16) !important; }
+.dark .admin-page .text-emerald-600 { color: #5ce0bd !important; }
+.dark .admin-page .bg-rose-500\/10 { background-color: rgb(244 63 94 / .16) !important; }
+.dark .admin-page .text-rose-600 { color: #ff9dab !important; }
+.dark .admin-page input::placeholder { color: #91a8bd; opacity: 1; }
+
 /* Midnight Pro palette scoped to Reports; other pages will be migrated one at a time. */
 .dark .reports-page { color: #e7eef7; }
 .dark .reports-page .bg-white { background-color: #15283c !important; }

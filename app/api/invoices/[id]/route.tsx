@@ -119,7 +119,7 @@ export async function GET(_r: Request, props: { params: Promise<{ id: string }> 
       <Page size="A4" style={styles.page}>
         <View style={styles.headerBox}>
           <View>
-            <Text style={styles.title}>{shop.name || 'Ashik Electric'}</Text>
+            <Text style={styles.title}>{shop.name || 'My Shop'}</Text>
             {shop.ownerName ? <Text style={styles.subText}>Owner: {shop.ownerName}</Text> : null}
             {shop.address ? <Text style={styles.subText}>{shop.address}</Text> : null}
             {shop.phone ? <Text style={styles.subText}>Phone: {shop.phone}</Text> : null}
@@ -232,7 +232,7 @@ export async function GET(_r: Request, props: { params: Promise<{ id: string }> 
         </View>
 
         <Text style={styles.footer}>
-          {shop.invoiceFooter || 'Thank you for shopping at Ashik Electric!'}
+          {shop.invoiceFooter || 'Thank you for shopping with us!'}
         </Text>
       </Page>
     </Document>

@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 
 const canonicalHost = 'hisab-rakhbo-nirapod.vercel.app';
 const legacyHost = 'hisab-nu-sable.vercel.app';
-const protectedPath = /^\/(dashboard|products|sales|customers|reports|profile)(\/|$)/;
+const protectedPath = /^\/(dashboard|products|sales|customers|reports|profile|admin)(\/|$)/;
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

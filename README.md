@@ -1,4 +1,4 @@
-# Ashik Electric — Store Manager
+# Hisab — Store Manager
 
 Next.js 14 App Router, TypeScript, MongoDB/Mongoose, NextAuth JWT sessions, Tailwind, React Hook Form + Zod, Zustand, Recharts, Sonner and Capacitor-ready mobile API.
 

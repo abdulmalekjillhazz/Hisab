@@ -16,6 +16,7 @@ const PAGE_TITLES: Record<string, { en: string; bn: string }> = {
   '/customers': { en: 'Customer Ledger', bn: 'গ্রাহক খাতা' },
   '/reports': { en: 'Reports', bn: 'রিপোর্ট' },
   '/profile': { en: 'Settings', bn: 'সেটিংস' },
+  '/admin': { en: 'Super Admin', bn: 'Super Admin' },
 };
 
 function NavIcon({ type, active }: { type: string; active: boolean }) {
@@ -115,7 +116,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const locale = useUIStore((s) => s.locale);
   const setLocale = useUIStore((s) => s.setLocale);
   const [avatar, setAvatar] = useState('');
-  const [shopName, setShopName] = useState('Ashik Electric');
+  const [shopName, setShopName] = useState('My Shop');
   const [ownerName, setOwnerName] = useState('');
   const [category, setCategory] = useState('general');
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
@@ -144,7 +145,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           const x = await r.json();
           if (!r.ok || !x.data) return;
           setAvatar(x.data.avatar || '');
-          setShopName(x.data.name || 'Ashik Electric');
+          setShopName(x.data.name || 'My Shop');
           setOwnerName(x.data.ownerName || '');
           setCategory(x.data.category || 'general');
           if (x.data.locale === 'bn' || x.data.locale === 'en') setLocale(x.data.locale);
@@ -161,7 +162,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     if (iconLink) iconLink.href = `/api/shop-icon?category=${encodeURIComponent(category)}&v=1`;
   }, [category]);
 
-  const currentTitle = PAGE_TITLES[pathname] || { en: 'Ashik Electric', bn: 'আশিক ইলেকট্রিক' };
+  const currentTitle = PAGE_TITLES[pathname] || { en: 'Hisab', bn: 'হিসাব' };
 
   return (
     <div className="app-shell bg-bg text-ink">
@@ -191,12 +192,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 {locale === 'bn' ? currentTitle.bn : currentTitle.en}
               </h1>
               <p className="truncate text-[10px] font-medium text-muted sm:text-xs">
-                {ownerName || data?.user?.name ? `${ownerName || data?.user?.name} • ` : ''}{shopName}
+                {pathname.startsWith('/admin') ? 'Platform access and account controls' : [ownerName || data?.user?.name, shopName].filter(Boolean).join(' • ')}
               </p>
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
+            {data?.user?.isSuperAdmin && <Link href="/admin" aria-label="Super Admin" title="Super Admin" className="grid h-8 w-8 place-items-center rounded-lg border border-line bg-card text-muted transition hover:border-teal hover:text-teal"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg></Link>}
             <ThemeToggle />
             <button
               className="btn-soft text-xs py-1 px-2.5 rounded-lg active:scale-95 transition"

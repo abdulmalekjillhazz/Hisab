@@ -139,7 +139,7 @@ export async function GET(req: Request) {
   return new Response('\uFEFF' + rows.map((r) => r.map(csv).join(',')).join('\r\n'), {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="ashik-electric-sales.csv"',
+      'Content-Disposition': 'attachment; filename="hisab-sales.csv"',
       'Cache-Control': 'no-store',
     },
   });

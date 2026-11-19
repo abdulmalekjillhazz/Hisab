@@ -6,6 +6,8 @@ const S = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true, select: false },
     shop: { type: Schema.Types.ObjectId, ref: 'Shop', required: true },
+    // Super admins are provisioned through the private ADMIN_EMAILS allowlist,
+    // never through public signup or user-edit APIs.
     role: { type: String, enum: ['owner', 'staff'], default: 'owner' },
     avatar: { type: String, default: '' }, // DataURL or Cloudinary URL
     securityPin: { type: String, default: '1234', trim: true }, // Master PIN for password recovery

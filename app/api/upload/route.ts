@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   cloudinary.config({ cloud_name: cloud, api_key: key, api_secret: secret });
   const timestamp = Math.floor(Date.now() / 1000);
-  const folder = `ashik-electric/${me.shopId}/products`;
+  const folder = `hisab/${me.shopId}/products`;
   const cleanBase = (name || 'product')
     .replace(/\.[^/.]+$/, '')
     .replace(/[^a-z0-9_-]/gi, '-')

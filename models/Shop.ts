@@ -3,7 +3,8 @@ import { Schema, models, model } from 'mongoose';
 const S = new Schema(
   {
     owner: { type: Schema.Types.ObjectId, ref: 'User' },
-    name: { type: String, default: 'Ashik Electric', trim: true },
+    active: { type: Boolean, default: true, index: true },
+    name: { type: String, default: 'My Shop', trim: true },
     ownerName: String,
     phone: String,
     email: String,
