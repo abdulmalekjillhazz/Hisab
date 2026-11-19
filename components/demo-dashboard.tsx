@@ -92,7 +92,7 @@ export function DemoDashboard() {
         };
       }));
       setUpdatedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    }, 3000);
+    }, 20 * 60 * 1000);
 
     return () => window.clearInterval(timer);
   }, []);
@@ -116,7 +116,7 @@ export function DemoDashboard() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green/50" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green" />
           </span>
-          <span>Updating every 3 sec</span>
+          <span>Demo refreshes every 20 min</span>
           {updatedAt && <span className="hidden border-l border-line pl-2 sm:inline">{updatedAt}</span>}
         </div>
       </div>
