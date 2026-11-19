@@ -30,5 +30,6 @@ const S = new Schema(
 S.index({ shop: 1, normalizedPhone: 1 });
 S.index({ shop: 1, normalizedName: 1 });
 S.index({ shop: 1, totalDue: -1 });
+S.index({ shop: 1, totalDue: -1, lastVisit: -1 });
 
 export default models.Customer || model('Customer', S);

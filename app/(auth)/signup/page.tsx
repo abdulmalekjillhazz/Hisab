@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
+import { PasswordInput } from '@/components/password-input';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -17,6 +18,7 @@ export default function Signup() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    let accountCreated = false;
     try {
       const r = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -28,15 +30,19 @@ export default function Signup() {
         toast.error(j.error || `Could not create account (${r.status})`);
         return;
       }
+      accountCreated = true;
       const login = await signIn('credentials', { email, password, redirect: false });
       if (login?.error) {
         toast.error('Account created; sign in to continue');
-        router.push('/login');
+        router.replace('/login');
         return;
       }
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch {
-      toast.error('Could not reach the signup service. Open the app using its primary Vercel domain and try again.');
+      toast.error(accountCreated
+        ? 'Account created, but automatic sign-in failed. Please sign in to continue.'
+        : 'Could not reach the signup service. Please try again.');
+      if (accountCreated) router.replace('/login');
     } finally {
       setBusy(false);
     }
@@ -45,12 +51,12 @@ export default function Signup() {
   return (
     <form
       onSubmit={submit}
-      className="w-full max-w-md space-y-4 rounded-3xl border border-line bg-white p-8 shadow-card"
+      className="w-full max-w-[460px] space-y-4 rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_18px_55px_rgba(30,41,59,.1)] sm:p-8"
     >
       <div className="text-center mb-5">
-        <span className="mx-auto mb-3.5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-teal to-blue shadow-md">
+        <span className="mx-auto mb-3.5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-[0_5px_12px_rgba(79,70,229,.25)]">
           <svg
-            className="h-7 w-7 text-sand"
+            className="h-7 w-7 text-white"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -61,7 +67,7 @@ export default function Signup() {
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
           </svg>
         </span>
-        <h1 className="font-heading text-2xl font-bold tracking-tight text-ink">Set up your shop</h1>
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-slate-900">Set up your shop</h1>
         <p className="mt-1 text-sm text-muted">Create your private owner account</p>
       </div>
 
@@ -71,26 +77,30 @@ export default function Signup() {
         ['Email', email, setEmail],
         ['Password', password, setPassword],
       ].map(([label, value, set]: any) => (
-        <label key={label} className="block text-sm font-semibold text-ink">
+        <label key={label} className="block text-sm font-semibold text-slate-700">
           {label}
-          <input
-            className="field mt-1.5"
-            required
-            type={label === 'Password' ? 'password' : label === 'Email' ? 'email' : 'text'}
-            minLength={label === 'Password' ? 10 : undefined}
-            value={value}
-            onChange={(e) => set(e.target.value)}
-          />
+          {label === 'Password' ? (
+            <PasswordInput className="field mt-1.5 w-full" required minLength={10} value={value} onChange={(e) => set(e.target.value)} />
+          ) : (
+            <input
+              className="field mt-1.5"
+              required
+              type={label === 'Email' ? 'email' : 'text'}
+              minLength={2}
+              value={value}
+              onChange={(e) => set(e.target.value)}
+            />
+          )}
         </label>
       ))}
 
-      <button disabled={busy} className="btn-primary w-full py-3 text-sm mt-3">
+      <button disabled={busy} className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_4px_10px_rgba(79,70,229,.2)] transition hover:bg-indigo-700 disabled:opacity-50">
         {busy ? 'Creating…' : 'Create Store Account'}
       </button>
 
-      <p className="text-center text-sm text-muted pt-2">
+      <p className="border-t border-slate-100 pt-3 text-center text-xs text-slate-500 sm:text-sm">
         Already registered?{' '}
-        <Link className="font-bold text-teal hover:underline" href="/login">
+        <Link className="font-bold text-indigo-600 hover:underline" href="/login">
           Sign in
         </Link>
       </p>

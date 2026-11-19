@@ -24,5 +24,6 @@ S.index(
   { unique: true, partialFilterExpression: { sku: { $type: 'string', $gt: '' } } }
 );
 S.index({ shop: 1, name: 'text', brand: 'text', sku: 'text', category: 'text' });
+S.index({ shop: 1, updatedAt: -1 });
 
 export default models.Product || model('Product', S);

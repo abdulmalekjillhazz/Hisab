@@ -29,8 +29,15 @@ export async function GET(req: Request) {
     Customer.find(f).sort({ totalDue: -1, lastVisit: -1 }).skip(skip).limit(limit).lean(),
     Customer.countDocuments(f),
     Customer.aggregate([
-      { $match: { shop: shopId, totalDue: { $gt: 0 } } },
-      { $group: { _id: null, totalDue: { $sum: '$totalDue' }, dueCustomers: { $sum: 1 } } },
+      { $match: { shop: shopId } },
+      {
+        $group: {
+          _id: null,
+          customers: { $sum: 1 },
+          totalDue: { $sum: { $cond: [{ $gt: ['$totalDue', 0] }, '$totalDue', 0] } },
+          dueCustomers: { $sum: { $cond: [{ $gt: ['$totalDue', 0] }, 1, 0] } },
+        },
+      },
     ]),
   ]);
 
@@ -40,6 +47,6 @@ export async function GET(req: Request) {
     page,
     limit,
     pages: Math.ceil(total / limit) || 1,
-    summary: dueAgg[0] || { totalDue: 0, dueCustomers: 0 },
+    summary: dueAgg[0] || { totalDue: 0, dueCustomers: 0, customers: 0 },
   });
 }

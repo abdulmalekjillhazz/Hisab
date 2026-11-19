@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { PasswordInput } from '@/components/password-input';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -21,40 +22,50 @@ export default function Login() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const r = await signIn('credentials', { email, password, redirect: false });
-    setBusy(false);
-    if (r?.error) return toast.error('Email or password is incorrect');
-    router.push('/dashboard');
+    try {
+      const r = await signIn('credentials', { email, password, redirect: false });
+      if (r?.error) return toast.error('Email or password is incorrect');
+      router.replace('/dashboard');
+    } catch {
+      toast.error('Could not reach the sign-in service. Please try again.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
     setResetBusy(true);
+    try {
     const r = await fetch('/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: resetEmail, securityPin, newPassword }),
     });
-    const j = await r.json();
-    setResetBusy(false);
+    const j = await r.json().catch(() => ({}));
     if (!r.ok) return toast.error(j.error);
     toast.success('পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।');
     setEmail(resetEmail);
     setPassword(newPassword);
     setShowForgot(false);
+    } catch {
+      toast.error('Could not reach the password reset service. Please try again.');
+    } finally {
+      setResetBusy(false);
+    }
   }
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-[420px]">
       {!showForgot ? (
         <form
           onSubmit={submit}
-          className="w-full space-y-4 rounded-3xl border border-line bg-white p-7 sm:p-8 shadow-card"
+          className="w-full space-y-4 rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_18px_55px_rgba(30,41,59,.1)] sm:p-8"
         >
           <div className="mb-5 text-center">
-            <span className="mx-auto mb-3 grid h-13 w-13 place-items-center rounded-2xl bg-gradient-to-br from-teal to-blue shadow-md">
+            <span className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-[0_5px_12px_rgba(79,70,229,.25)]">
               <svg
-                className="h-6 w-6 text-sand"
+                className="h-6 w-6 text-white"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -65,23 +76,23 @@ export default function Login() {
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
               </svg>
             </span>
-            <h1 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-ink">Welcome back</h1>
+            <h1 className="font-heading text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Welcome back</h1>
             <p className="mt-1 text-xs sm:text-sm text-muted">Sign in to Ashik Electric workspace</p>
           </div>
 
-          <label className="block text-xs sm:text-sm font-semibold text-ink">
+          <label className="block text-xs font-semibold text-slate-700 sm:text-sm">
             Email
             <input
               className="field mt-1"
               type="email"
               required
-              placeholder="admin@ashikelectric.com"
+              placeholder="example@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </label>
 
-          <label className="block text-xs sm:text-sm font-semibold text-ink">
+          <label className="block text-xs font-semibold text-slate-700 sm:text-sm">
             <div className="flex items-center justify-between">
               <span>Password</span>
               <button
@@ -90,14 +101,13 @@ export default function Login() {
                   setResetEmail(email);
                   setShowForgot(true);
                 }}
-                className="text-xs font-semibold text-blue hover:underline"
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
               >
                 পাসওয়ার্ড ভুলে গেছেন?
               </button>
             </div>
-            <input
-              className="field mt-1"
-              type="password"
+            <PasswordInput
+              className="field w-full"
               required
               placeholder="••••••••"
               value={password}
@@ -105,13 +115,13 @@ export default function Login() {
             />
           </label>
 
-          <button disabled={busy} className="btn-primary w-full py-2.5 sm:py-3 text-xs sm:text-sm mt-1">
+          <button disabled={busy} className="mt-1 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-[0_4px_10px_rgba(79,70,229,.2)] transition hover:bg-indigo-700 disabled:opacity-50 sm:py-3 sm:text-sm">
             {busy ? 'Signing in…' : 'Sign in to Store'}
           </button>
 
-          <p className="text-center text-xs sm:text-sm text-muted pt-2 border-t border-line/60">
+          <p className="border-t border-slate-100 pt-3 text-center text-xs text-slate-500 sm:text-sm">
             New shop?{' '}
-            <Link className="font-bold text-teal hover:underline" href="/signup">
+            <Link className="font-bold text-indigo-600 hover:underline" href="/signup">
               Create owner account
             </Link>
           </p>
@@ -120,10 +130,10 @@ export default function Login() {
         /* Instant Reset with Security PIN */
         <form
           onSubmit={handleResetPassword}
-          className="w-full space-y-3.5 rounded-3xl border border-line bg-white p-7 sm:p-8 shadow-card"
+          className="w-full space-y-3.5 rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_18px_55px_rgba(30,41,59,.1)] sm:p-8"
         >
           <div className="mb-4 text-center">
-            <span className="mx-auto mb-2.5 grid h-11 w-11 place-items-center rounded-2xl bg-amber-100 text-amber-700 text-lg font-bold">
+            <span className="mx-auto mb-2.5 grid h-11 w-11 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 text-lg font-bold">
               🔑
             </span>
             <h2 className="font-heading text-lg sm:text-xl font-bold text-ink">পাসওয়ার্ড রিসেট</h2>
@@ -132,7 +142,7 @@ export default function Login() {
             </p>
           </div>
 
-          <label className="block text-xs font-semibold text-ink">
+          <label className="block text-xs font-semibold text-slate-700">
             অ্যাকাউন্ট ইমেইল (Email)
             <input
               className="field mt-1 text-xs"
@@ -144,7 +154,7 @@ export default function Login() {
             />
           </label>
 
-          <label className="block text-xs font-semibold text-ink">
+          <label className="block text-xs font-semibold text-slate-700">
             মাস্টার সিকিউরিটি পিন (Default: 1234)
             <input
               className="field mt-1 text-xs font-mono tracking-widest"
@@ -156,11 +166,10 @@ export default function Login() {
             />
           </label>
 
-          <label className="block text-xs font-semibold text-ink">
+          <label className="block text-xs font-semibold text-slate-700">
             নতুন পাসওয়ার্ড (New Password)
-            <input
-              className="field mt-1 text-xs"
-              type="password"
+            <PasswordInput
+              className="field w-full text-xs"
               minLength={6}
               required
               placeholder="কমপক্ষে ৬ অক্ষর"
@@ -172,14 +181,14 @@ export default function Login() {
           <div className="pt-2 flex gap-2">
             <button
               type="button"
-              className="btn-soft flex-1 py-2 text-xs"
+              className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
               onClick={() => setShowForgot(false)}
             >
               ফিরে যান
             </button>
             <button
               disabled={resetBusy}
-              className="btn-primary flex-1 py-2 text-xs font-bold"
+              className="inline-flex min-h-10 flex-1 items-center justify-center rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-50"
             >
               {resetBusy ? 'রিসেট হচ্ছে…' : '✓ পাসওয়ার্ড রিসেট'}
             </button>

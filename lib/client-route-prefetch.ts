@@ -25,7 +25,8 @@ export function prefetchPageData(path: string) {
       urls.push(
         '/api/products?limit=500',
         '/api/customers?limit=200',
-        '/api/sales?page=1&limit=20&q='
+        '/api/sales?page=1&limit=20&q=',
+        `/api/reports?from=${localDate(new Date(now.getFullYear(), now.getMonth(), 1))}&to=${today}`
       );
       break;
     case '/customers':

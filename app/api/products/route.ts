@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { z } from 'zod';
 import { connectDB } from '@/lib/db';
 import { identity } from '@/lib/auth';
@@ -45,10 +46,23 @@ export async function GET(req: Request) {
     filter.$expr = { $lte: ['$qty', '$minStock'] };
   }
 
-  const [items, total, categories] = await Promise.all([
+  const [items, total, categories, summaryRows] = await Promise.all([
     Product.find(filter).sort({ updatedAt: -1 }).skip(skip).limit(limit).lean(),
     Product.countDocuments(filter),
     Product.distinct('category', { shop: me.shopId }),
+    Product.aggregate([
+      { $match: { shop: new mongoose.Types.ObjectId(me.shopId) } },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+          units: { $sum: '$qty' },
+          lowStock: { $sum: { $cond: [{ $lte: ['$qty', '$minStock'] }, 1, 0] } },
+          costValue: { $sum: { $multiply: ['$qty', '$cost'] } },
+          potentialValue: { $sum: { $multiply: ['$qty', '$price'] } },
+        },
+      },
+    ]),
   ]);
 
   return ok({
@@ -58,6 +72,7 @@ export async function GET(req: Request) {
     limit,
     pages: Math.ceil(total / limit) || 1,
     categories: categories.filter(Boolean).sort(),
+    summary: summaryRows[0] || { count: 0, units: 0, lowStock: 0, costValue: 0, potentialValue: 0 },
   });
 }
 

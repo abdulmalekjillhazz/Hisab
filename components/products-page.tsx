@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,6 +35,7 @@ export function ProductsPage() {
   const [edit, setEdit] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const latestLoad = useRef(0);
   const locale = useUIStore((s) => s.locale);
   const t = dict[locale];
 
@@ -49,6 +50,7 @@ export function ProductsPage() {
   });
 
   async function load() {
+    const requestId = ++latestLoad.current;
     const params = new URLSearchParams({
       page: String(page),
       limit: '20',
@@ -58,14 +60,15 @@ export function ProductsPage() {
     if (lowStockOnly) params.set('lowStock', '1');
     try {
       const j = await getCachedJson(`/api/products?${params.toString()}`);
-      setData(j.data);
+      if (requestId === latestLoad.current) setData(j.data);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not load products');
+      if (requestId === latestLoad.current) toast.error(error instanceof Error ? error.message : 'Could not load products');
     }
   }
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => { void load(); }, q ? 250 : 0);
+    return () => window.clearTimeout(timer);
   }, [page, q, category, lowStockOnly]);
 
   function start(p?: any) {
@@ -107,6 +110,7 @@ export function ProductsPage() {
     if (!input) return;
     const addStock = parseInt(input, 10);
     if (Number.isNaN(addStock) || addStock === 0) return toast.error('Invalid quantity');
+    try {
     const r = await fetch(`/api/products/${p._id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -121,10 +125,14 @@ export function ProductsPage() {
         : `Stock updated: now ${j.data.qty} ${p.unit}`
     );
     load();
+    } catch {
+      toast.error('Could not reach the server. Refresh stock before retrying.');
+    }
   }
 
   async function save(v: Form) {
     setBusy(true);
+    try {
     let image = edit?.image;
     if (file) {
       const sr = await fetch('/api/upload', {
@@ -167,26 +175,53 @@ export function ProductsPage() {
     toast.success(locale === 'bn' ? 'পণ্য সেভ হয়েছে' : 'Product saved');
     setOpen(false);
     load();
+    } catch {
+      toast.error('Could not reach the server. Your product was not confirmed; refresh the list before retrying.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function del(id: string) {
     if (!confirm(locale === 'bn' ? 'পণ্যটি মুছে ফেলতে চান?' : 'Delete this product?')) return;
+    try {
     const r = await fetch(`/api/products/${id}`, { method: 'DELETE' });
     const j = await r.json();
     if (r.ok) invalidateApiCache('/api/products', '/api/reports', '/api/sales');
     r.ok ? toast.success('Product deleted') : toast.error(j.error);
     load();
+    } catch {
+      toast.error('Could not reach the server. Refresh the product list before retrying.');
+    }
   }
 
   return (
-    <div>
-      <div className="mb-4 flex justify-end">
+    <div className="products-page mx-auto max-w-[1500px] space-y-5 pb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="mb-2 hidden items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 sm:flex">
+            <span>{locale === 'bn' ? 'ব্যবসার সারাংশ' : 'Business overview'}</span><span className="text-slate-300">/</span><span>{locale === 'bn' ? 'ইনভেন্টরি' : 'Inventory'}</span>
+          </div>
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{locale === 'bn' ? 'পণ্য ও স্টক' : 'Products & Stock'}</h2>
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">{locale === 'bn' ? 'পণ্য, মজুত ও মূল্য এক জায়গা থেকে পরিচালনা করুন।' : 'Manage your products, stock levels and pricing in one place.'}</p>
+        </div>
+        <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-semibold text-white shadow-[0_4px_10px_rgba(79,70,229,.2)] transition hover:bg-indigo-700" onClick={() => start()}>
+          <span className="text-base leading-none">+</span>{locale === 'bn' ? 'পণ্য যোগ করুন' : 'Add product'}
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+        <ProductMetric icon="product" label={locale === 'bn' ? 'মোট পণ্য' : 'Total products'} value={Number(data?.summary?.count || 0).toLocaleString(locale === 'bn' ? 'bn-BD' : 'en-US')} tone="indigo" />
+        <ProductMetric icon="units" label={locale === 'bn' ? 'মোট ইউনিট' : 'Stock units'} value={Number(data?.summary?.units || 0).toLocaleString(locale === 'bn' ? 'bn-BD' : 'en-US')} tone="emerald" />
+        <ProductMetric icon="value" label={locale === 'bn' ? 'ক্রয়মূল্যে স্টক' : 'Stock cost value'} value={`৳${Number(data?.summary?.costValue || 0).toLocaleString()}`} tone="violet" />
+        <ProductMetric icon="alert" label={locale === 'bn' ? 'স্টক কম' : 'Low stock items'} value={Number(data?.summary?.lowStock || 0).toLocaleString(locale === 'bn' ? 'bn-BD' : 'en-US')} tone={data?.summary?.lowStock ? 'amber' : 'slate'} />
+      </div>
+      <div className="hidden">
         <button className="product-action product-action-add" onClick={() => start()} title={t.addProduct} aria-label={t.addProduct}>
           ＋
         </button>
       </div>
 
-      <section className="panel p-3 sm:p-5">
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.035)] sm:p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2 sm:mb-4 sm:gap-3">
           <div className="relative min-w-0 flex-1 sm:max-w-xs">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">⌕</span>
@@ -201,7 +236,7 @@ export function ProductsPage() {
             />
           </div>
           <select
-            className="field max-w-[180px]"
+            className="field min-w-0 max-w-[180px] flex-1 sm:flex-none"
             value={category}
             onChange={(e) => {
               setPage(1);
@@ -493,7 +528,7 @@ function Pager({
   setPage: (x: number) => void;
 }) {
   return (
-    <div className="mt-4 flex items-center justify-between">
+    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
       <button
         disabled={page <= 1}
         className="product-action product-action-page disabled:opacity-40"
@@ -513,5 +548,29 @@ function Pager({
         →
       </button>
     </div>
+  );
+}
+
+function ProductMetric({ icon, label, value, tone }: { icon: 'product' | 'units' | 'value' | 'alert'; label: string; value: string; tone: 'indigo' | 'emerald' | 'violet' | 'amber' | 'slate' }) {
+  const tones = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    violet: 'bg-violet-50 text-violet-600',
+    amber: 'bg-amber-50 text-amber-600',
+    slate: 'bg-slate-100 text-slate-600',
+  };
+  return (
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_5px_16px_rgba(15,23,42,.025)] sm:p-4">
+      <span className={`mb-3 grid h-9 w-9 place-items-center rounded-xl ${tones[tone]}`}>
+        <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {icon === 'product' && <><path d="m12 3 8.5 4.5v9L12 21l-8.5-4.5v-9z"/><path d="m3.8 7.7 8.2 4.5 8.2-4.5M12 21v-8.8"/></>}
+          {icon === 'units' && <><rect x="3.5" y="4" width="7" height="7" rx="1.5"/><rect x="13.5" y="4" width="7" height="7" rx="1.5"/><rect x="3.5" y="14" width="7" height="7" rx="1.5"/><rect x="13.5" y="14" width="7" height="7" rx="1.5"/></>}
+          {icon === 'value' && <><path d="M12 3.5v17M17.5 7.5c0-2-2.1-3.5-5.5-3.5S6.5 5.4 6.5 7.5 8.2 11 12 12s5.5 2 5.5 4.5-2.1 4-5.5 4-5.5-1.5-5.5-4"/></>}
+          {icon === 'alert' && <><path d="m12 3 9 16H3z"/><path d="M12 9v4M12 17h.01"/></>}
+        </svg>
+      </span>
+      <p className="truncate text-[10px] font-medium text-slate-500 sm:text-xs">{label}</p>
+      <p className="mt-1 truncate font-heading text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">{value}</p>
+    </article>
   );
 }

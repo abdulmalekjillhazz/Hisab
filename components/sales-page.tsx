@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -27,15 +27,20 @@ const schema = z.object({
 });
 type Form = z.infer<typeof schema>;
 
+const localKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
 export function SalesPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [prodFilter, setProdFilter] = useState('');
   const [data, setData] = useState<any>(null);
+  const [monthReport, setMonthReport] = useState<any>(null);
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const latestLoad = useRef(0);
   const locale = useUIStore((s) => s.locale);
   const t = dict[locale];
 
@@ -92,21 +97,33 @@ export function SalesPage() {
     loadCatalogAndCustomers();
   }, []);
 
+  useEffect(() => {
+    const end = new Date();
+    const start = new Date(end.getFullYear(), end.getMonth(), 1);
+    getCachedJson(`/api/reports?from=${localKey(start)}&to=${localKey(end)}`)
+      .then((result) => setMonthReport(result.data))
+      .catch(() => undefined);
+  }, []);
+
   async function load() {
+    const requestId = ++latestLoad.current;
     try {
       const j = await getCachedJson(`/api/sales?page=${page}&limit=20&q=${encodeURIComponent(q)}`);
-      setData(j.data);
+      if (requestId === latestLoad.current) setData(j.data);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not load sales');
+      if (requestId === latestLoad.current) toast.error(error instanceof Error ? error.message : 'Could not load sales');
     }
   }
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => { void load(); }, q ? 250 : 0);
+    return () => window.clearTimeout(timer);
   }, [q, page]);
 
   async function submit(v: Form) {
     setBusy(true);
+    // Open during the submit gesture; browsers may block popups opened after fetch.
+    const invoiceWindow = window.open('about:blank', '_blank');
     const body = {
       customer: { name: v.name, phone: v.phone, address: v.address },
       items: v.items,
@@ -114,6 +131,7 @@ export function SalesPage() {
       paidAmount: v.paidAmount,
       paymentMethod: v.paymentMethod,
     };
+    try {
     const r = await fetch('/api/sales', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -131,7 +149,14 @@ export function SalesPage() {
     setOpen(false);
     load();
     loadCatalogAndCustomers();
-    window.open(`/api/invoices/${j.data._id}`, '_blank');
+    if (invoiceWindow) invoiceWindow.location.href = `/api/invoices/${j.data._id}`;
+    else toast.info('Sale saved. Open the invoice from the sales list.');
+    } catch {
+      invoiceWindow?.close();
+      toast.error('Could not reach the server. Refresh sales before retrying.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function returnSale(s: any) {
@@ -143,6 +168,7 @@ export function SalesPage() {
       )
     )
       return;
+    try {
     const r = await fetch(`/api/sales/${s._id}`, { method: 'DELETE' });
     const j = await r.json();
     if (!r.ok) return toast.error(j.error);
@@ -150,6 +176,9 @@ export function SalesPage() {
     toast.success(locale === 'bn' ? 'বিল রিটার্ন ও স্টক পুনরুদ্ধার হয়েছে' : 'Sale returned & stock restored');
     load();
     loadCatalogAndCustomers();
+    } catch {
+      toast.error('Could not reach the server. Refresh sales and stock before retrying.');
+    }
   }
 
   const filteredProducts = prodFilter.trim()
@@ -160,9 +189,44 @@ export function SalesPage() {
       )
     : products;
 
+  function startNewSale() {
+    const firstAvailable = products.find((product) => product.qty > 0) || products[0];
+    reset({
+      name: locale === 'bn' ? 'খুচরা ক্রেতা' : 'Walk-in Customer',
+      phone: '',
+      address: '',
+      items: [{ productId: firstAvailable?._id || '', qty: 1, unitPrice: firstAvailable?.price || 0 }],
+      discount: 0,
+      paidAmount: firstAvailable?.price || 0,
+      paymentMethod: 'Cash',
+    });
+    setProdFilter('');
+    setOpen(true);
+  }
+
   return (
-    <div>
-      <div className="mb-4 flex justify-end">
+    <div className="sales-page mx-auto max-w-[1500px] space-y-5 pb-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="mb-2 hidden items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 sm:flex">
+            <span>{locale === 'bn' ? 'ব্যবসার সারাংশ' : 'Business overview'}</span><span className="text-slate-300">/</span><span>{locale === 'bn' ? 'বিক্রি' : 'Sales'}</span>
+          </div>
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{locale === 'bn' ? 'বিক্রি ও ইনভয়েস' : 'Sales & Invoices'}</h2>
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">{locale === 'bn' ? 'লেনদেন, পেমেন্ট ও ইনভয়েস পরিচালনা করুন।' : 'Manage transactions, payments and customer invoices.'}</p>
+        </div>
+        <button type="button" onClick={startNewSale} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-semibold text-white shadow-[0_4px_10px_rgba(79,70,229,.2)] transition hover:bg-indigo-700">
+          <span className="text-base leading-none">+</span>{locale === 'bn' ? 'নতুন বিক্রি' : 'New sale'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+        <SalesMetric label={locale === 'bn' ? 'এই মাসের বিক্রি' : 'Sales this month'} value={money(monthReport?.stats?.revenue, monthReport?.currency)} tone="indigo" />
+        <SalesMetric label={locale === 'bn' ? 'জমা পাওয়া' : 'Payments received'} value={money(monthReport?.stats?.cash, monthReport?.currency)} tone="emerald" />
+        <SalesMetric label={locale === 'bn' ? 'বর্তমান বাকি' : 'Outstanding due'} value={money(monthReport?.dueSummary?.totalMarketDue, monthReport?.currency)} tone="rose" />
+        <SalesMetric label={locale === 'bn' ? 'এই মাসের ইনভয়েস' : 'Invoices this month'} value={Number(monthReport?.stats?.invoices || 0).toLocaleString(locale === 'bn' ? 'bn-BD' : 'en-US')} tone="slate" />
+      </div>
+
+      <div className="hidden">
         <button
           className="sales-action-icon sales-action-icon-new"
           title={t.newSale}
@@ -192,7 +256,13 @@ export function SalesPage() {
         </button>
       </div>
 
-      <section className="panel p-3 sm:p-5">
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.035)] sm:p-5">
+        <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:mb-4">
+          <div>
+            <h3 className="font-heading text-sm font-bold text-slate-800 sm:text-base">{locale === 'bn' ? 'ইনভয়েস তালিকা' : 'Invoice register'}</h3>
+            <p className="mt-0.5 text-[10px] text-slate-400 sm:text-xs">{Number(data?.total || 0).toLocaleString(locale === 'bn' ? 'bn-BD' : 'en-US')} {locale === 'bn' ? 'টি ইনভয়েস' : 'invoices'}</p>
+          </div>
+        </div>
         <div className="relative mb-3 w-full sm:mb-4 sm:max-w-md">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">⌕</span>
           <input
@@ -214,7 +284,7 @@ export function SalesPage() {
             const paid = s.paidAmount !== undefined ? s.paidAmount : s.paymentMethod === 'Due / Credit' ? 0 : s.total;
             const due = s.dueAmount !== undefined ? s.dueAmount : s.paymentMethod === 'Due / Credit' ? s.total : 0;
             return (
-              <article key={s._id} className="rounded-xl border border-line bg-white p-3 shadow-sm">
+              <article key={s._id} className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_4px_14px_rgba(15,23,42,.035)]">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <b className="block truncate text-xs text-ink">{s.invoiceNumber}</b>
@@ -222,7 +292,7 @@ export function SalesPage() {
                   </div>
                   <strong className="shrink-0 text-sm text-blue">৳{Number(s.total).toLocaleString()}</strong>
                 </div>
-                <div className="mt-2 flex items-center justify-between border-t border-line pt-2 text-[11px]">
+                <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 text-[11px]">
                   <span className="text-muted">{s.items.length} item{ s.items.length !== 1 ? 's' : '' } · {new Date(s.date).toLocaleDateString()}</span>
                   {due > 0 ? <span className="badge bg-red-50 text-red">! ৳{Number(due).toLocaleString()}</span> : <span className="font-semibold text-green">✓ ৳{Number(paid).toLocaleString()}</span>}
                 </div>
@@ -298,6 +368,7 @@ export function SalesPage() {
                         className="sales-action-icon sales-action-icon-invoice sales-action-icon-sm"
                         href={`/api/invoices/${s._id}`}
                         target="_blank"
+                        rel="noreferrer"
                         title="Open invoice"
                         aria-label="Open invoice"
                       >
@@ -349,10 +420,10 @@ export function SalesPage() {
       </section>
 
       {open && (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/50 p-4">
+        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/40 p-4 backdrop-blur-sm">
           <form
             onSubmit={handleSubmit(submit)}
-            className="max-h-[calc(100dvh-2rem)] w-full max-w-3xl space-y-4 overflow-y-auto overscroll-contain rounded-2xl bg-white p-4 sm:p-6"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-3xl space-y-4 overflow-y-auto overscroll-contain rounded-3xl border border-slate-200 bg-white p-4 shadow-2xl sm:p-6"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-lg font-bold">
@@ -439,7 +510,7 @@ export function SalesPage() {
             {fields.map((f, i) => (
               <div
                 key={f.id}
-                className="grid grid-cols-[1fr_90px_120px_36px] items-end gap-2 max-[550px]:grid-cols-2"
+                className="grid min-w-0 grid-cols-2 items-end gap-2 min-[551px]:grid-cols-[minmax(0,1fr)_90px_120px_36px]"
               >
                 <label className="text-xs font-bold text-muted">
                   {locale === 'bn' ? 'পণ্য' : 'Product'}
@@ -563,5 +634,32 @@ export function SalesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function money(value: number | undefined, currency?: string) {
+  return `${currency === 'USD' ? '$' : '৳'}${Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+}
+
+function SalesMetric({ label, value, tone }: { label: string; value: string; tone: 'indigo' | 'emerald' | 'rose' | 'slate' }) {
+  const tones = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    rose: 'bg-rose-50 text-rose-600',
+    slate: 'bg-slate-100 text-slate-600',
+  };
+  return (
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_5px_16px_rgba(15,23,42,.025)] sm:p-4">
+      <span className={`mb-3 grid h-9 w-9 place-items-center rounded-xl ${tones[tone]}`}>
+        <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {tone === 'indigo' && <><path d="M4 17.5 9 12l3.5 3.5L20 7"/><path d="M14.5 7H20v5.5M4 4v16h16"/></>}
+          {tone === 'emerald' && <><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 9h17M8 14h.01M12 14h4"/></>}
+          {tone === 'rose' && <><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></>}
+          {tone === 'slate' && <><path d="M6 3.5h12v17l-3-1.8-3 1.8-3-1.8-3 1.8z"/><path d="M9 8h6M9 12h6"/></>}
+        </svg>
+      </span>
+      <p className="truncate text-[10px] font-medium text-slate-500 sm:text-xs">{label}</p>
+      <p className="mt-1 truncate font-heading text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">{value}</p>
+    </article>
   );
 }

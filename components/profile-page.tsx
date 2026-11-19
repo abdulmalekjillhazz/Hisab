@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useUIStore } from '@/store/use-ui-store';
+import { PasswordInput } from '@/components/password-input';
 import { BUSINESS_CATEGORIES } from '@/lib/business-categories';
 import { BusinessCategoryIcon } from '@/components/business-category-icon';
 import { getCachedJson, invalidateApiCache } from '@/lib/client-api-cache';
@@ -139,44 +140,52 @@ export function ProfilePage() {
       return toast.error('নতুন পাসওয়ার্ড অথবা সিকিউরিটি পিন দিন');
     }
     setSecBusy(true);
+    try {
     const r = await fetch('/api/profile/change-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPassword, newPassword, securityPin }),
     });
-    const j = await r.json();
-    setSecBusy(false);
+    const j = await r.json().catch(() => ({}));
     if (!r.ok) return toast.error(j.error);
     toast.success('নিরাপত্তা সেটিংস (পাসওয়ার্ড/পিন) সফলভাবে আপডেট হয়েছে!');
     setCurrentPassword('');
     setNewPassword('');
     setSecurityPin('');
+    } catch {
+      toast.error('Could not reach the server. Your security settings were not confirmed.');
+    } finally {
+      setSecBusy(false);
+    }
   }
 
   return (
-    <div className="max-w-4xl space-y-5 pb-10">
-      <div className="mb-2">
-        <h2 className="font-heading text-xl sm:text-2xl font-bold text-ink">Shop & Account Settings</h2>
-        <p className="mt-1 text-sm text-muted">Manage your shop identity, profile picture, password and security PIN.</p>
+    <div className="profile-page mx-auto max-w-[1200px] space-y-5 pb-8 sm:space-y-6">
+      <div>
+        <div className="mb-2 hidden items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 sm:flex">
+          <span>Business overview</span><span className="text-slate-300">/</span><span>Settings</span>
+        </div>
+        <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Shop & Account Settings</h2>
+        <p className="mt-1 text-xs text-slate-500 sm:text-sm">Manage your shop identity, profile picture, password and security PIN.</p>
       </div>
 
       {/* Main Profile & Shop Form */}
-      <form onSubmit={handleSubmit(save)} className="panel space-y-4 p-4 sm:p-6">
-        <h3 className="font-heading text-sm font-bold text-ink border-b border-line pb-2">
+      <form onSubmit={handleSubmit(save)} className="space-y-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.035)] sm:p-6">
+        <h3 className="border-b border-slate-100 pb-3 font-heading text-base font-bold text-slate-800 sm:text-lg">
           🏪 শপ তথ্য ও প্রোফাইল ছবি
         </h3>
 
         {/* Profile Picture Upload Section (Max 200 KB) */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 rounded-2xl border border-line bg-slate-50/70 p-3.5">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 sm:flex-row">
           <div className="relative">
             {avatar ? (
               <img
                 src={avatar}
                 alt="Profile"
-                className="h-18 w-18 sm:h-20 sm:w-20 rounded-2xl object-cover border-2 border-white shadow-md"
+                className="h-20 w-20 rounded-2xl border-2 border-white object-cover shadow-md sm:h-24 sm:w-24"
               />
             ) : (
-              <div className="grid h-18 w-18 sm:h-20 sm:w-20 place-items-center rounded-2xl bg-gradient-to-br from-blue to-teal text-2xl font-black text-white shadow-md">
+              <div className="grid h-20 w-20 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-2xl font-black text-white shadow-md sm:h-24 sm:w-24">
                 ⚡
               </div>
             )}
@@ -192,7 +201,7 @@ export function ProfilePage() {
             )}
           </div>
 
-          <div className="text-center sm:text-left flex-1">
+          <div className="flex-1 text-center sm:text-left">
             <h4 className="font-bold text-sm text-ink">প্রোফাইল ছবি / শপ লোগো</h4>
             <p className="text-[11px] text-muted mt-0.5">
               JPG, PNG বা WebP • <span className="font-semibold text-red">সর্বোচ্চ 350 KB (Max 350 KB)</span>
@@ -242,8 +251,8 @@ export function ProfilePage() {
             </select>
           </label>
 
-          <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-teal to-blue text-white shadow-md">
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50 px-3 py-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-sm">
               <BusinessCategoryIcon category={watch('category')} className="h-5 w-5" />
             </span>
             <span className="text-sm font-medium text-ink">Category icon preview</span>
@@ -266,17 +275,18 @@ export function ProfilePage() {
           </label>
         </div>
 
-        <div className="flex justify-end pt-2 border-t border-line">
-          <button disabled={busy} className="btn-primary py-2 px-5 text-xs sm:text-sm font-bold">
+        <div className="flex justify-end border-t border-slate-100 pt-3">
+          <button disabled={busy || avatarUploading} className="inline-flex min-h-10 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 text-xs font-semibold text-white shadow-[0_4px_10px_rgba(79,70,229,.2)] transition hover:bg-indigo-700 disabled:opacity-50 sm:text-sm">
             {busy ? 'সংরক্ষণ হচ্ছে…' : '✓ তথ্য সেভ করুন'}
           </button>
         </div>
       </form>
 
       {/* Password & Security PIN Update Form */}
-      <form onSubmit={updateSecurity} className="panel space-y-4 p-4 sm:p-6">
-        <div className="border-b border-line pb-2">
-          <h3 className="font-heading text-sm font-bold text-ink">
+      <form onSubmit={updateSecurity} className="space-y-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.035)] sm:p-6">
+        <div className="border-b border-slate-100 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Account security</p>
+          <h3 className="mt-1 font-heading text-base font-bold text-slate-800 sm:text-lg">
             🔐 পাসওয়ার্ড ও সিকিউরিটি পিন পরিবর্তন
           </h3>
           <p className="text-[11px] text-muted">
@@ -284,12 +294,11 @@ export function ProfilePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="block text-xs font-semibold text-muted">
             বর্তমান পাসওয়ার্ড (Current Password)
-            <input
-              type="password"
-              className="field mt-1 text-xs sm:text-sm"
+            <PasswordInput
+              className="field w-full text-xs sm:text-sm"
               placeholder="••••••••"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
@@ -298,10 +307,9 @@ export function ProfilePage() {
 
           <label className="block text-xs font-semibold text-muted">
             নতুন পাসওয়ার্ড (New Password)
-            <input
-              type="password"
+            <PasswordInput
               minLength={6}
-              className="field mt-1 text-xs sm:text-sm"
+              className="field w-full text-xs sm:text-sm"
               placeholder="কমপক্ষে ৬ অক্ষর"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
@@ -321,8 +329,8 @@ export function ProfilePage() {
           </label>
         </div>
 
-        <div className="flex justify-end pt-2 border-t border-line">
-          <button disabled={secBusy} className="btn-primary py-2 px-5 text-xs sm:text-sm font-bold">
+        <div className="flex justify-end border-t border-slate-100 pt-3">
+          <button disabled={secBusy} className="inline-flex min-h-10 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 text-xs font-semibold text-white shadow-[0_4px_10px_rgba(79,70,229,.2)] transition hover:bg-indigo-700 disabled:opacity-50 sm:text-sm">
             {secBusy ? 'আপডেট হচ্ছে…' : '✓ সিকিউরিটি সেভ করুন'}
           </button>
         </div>

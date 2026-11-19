@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { prefetchPageData } from '@/lib/client-route-prefetch';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const PAGE_TITLES: Record<string, { en: string; bn: string }> = {
   '/dashboard': { en: 'Dashboard', bn: 'ড্যাশবোর্ড' },
@@ -196,6 +197,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
             <button
               className="btn-soft text-xs py-1 px-2.5 rounded-lg active:scale-95 transition"
               onClick={() => setLocale(locale === 'en' ? 'bn' : 'en')}
@@ -230,7 +232,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 onMouseEnter={() => prefetchPageData(item.href)}
                 onFocus={() => prefetchPageData(item.href)}
                 onTouchStart={() => prefetchPageData(item.href)}
-                className="flex flex-1 flex-col items-center justify-center active:scale-95 transition-transform"
+                className="flex flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-center leading-tight transition-transform active:scale-95"
               >
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue via-cyan to-teal shadow-[0_2px_0_#0f4c81,0_4px_8px_rgba(14,116,144,0.3)] ${
@@ -240,7 +242,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <NavIcon type={item.type} active={true} />
                 </div>
                 <span
-                  className={`text-[11px] mt-0.5 font-bold tracking-tight ${
+                  className={`text-xs font-semibold leading-tight tracking-tight ${
                     active ? 'text-blue' : 'text-slate-600'
                   }`}
                 >
@@ -257,7 +259,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               onMouseEnter={() => prefetchPageData(item.href)}
               onFocus={() => prefetchPageData(item.href)}
               onTouchStart={() => prefetchPageData(item.href)}
-              className={`flex flex-1 flex-col items-center justify-center py-1 rounded-xl transition ${
+              className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1 text-center leading-tight transition ${
                 active ? 'text-blue font-bold' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -267,7 +269,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               >
                 <NavIcon type={item.type} active={active} />
               </div>
-              <span className="text-[11px] mt-0.5 font-medium tracking-tight">
+              <span className="text-xs font-semibold leading-tight tracking-tight">
                 {locale === 'bn' ? item.bn : item.en}
               </span>
             </Link>
