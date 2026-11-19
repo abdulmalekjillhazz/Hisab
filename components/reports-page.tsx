@@ -251,11 +251,11 @@ export function ReportsPage() {
             </button>
             <a
               className="col-span-3 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-50 px-5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100 xl:col-span-1 xl:h-11 xl:min-w-[150px]"
-              href={`/api/exports?from=${from}&to=${to}`}
+              href={`/api/exports/pdf?from=${from}&to=${to}`}
               download
             >
               <ReportIcon name="download" className="h-4 w-4" />
-              {isBn ? 'CSV এক্সপোর্ট' : 'Export CSV'}
+              {isBn ? 'PDF ডাউনলোড' : 'Download PDF'}
             </a>
           </div>
         </div>

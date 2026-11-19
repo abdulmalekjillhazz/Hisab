@@ -346,6 +346,8 @@ html.dark body {
 .dark .app-shell header { border-color: #29445b !important; }
 .dark .app-shell header .bg-white { background-color: #15283c !important; }
 .dark .app-shell header .text-slate-600 { color: #c4d4e1 !important; }
+.dark .app-shell header .text-ink { color: #e7eef7 !important; }
+.dark .app-shell header .text-muted { color: #a9bed0 !important; }
 .dark .app-shell .mobile-bottom-nav { background-color: rgb(12 27 43 / .96) !important; border-color: #29445b !important; }
 .dark .app-shell .mobile-bottom-nav .text-slate-500,
 .dark .app-shell .mobile-bottom-nav .text-slate-600 { color: #a9bed0 !important; }

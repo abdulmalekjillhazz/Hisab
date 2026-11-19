@@ -102,9 +102,9 @@ export function DashboardHome() {
                 <span className={`grid h-9 w-9 place-items-center rounded-xl ${card.tint} ${card.color}`}><DashboardIcon name={card.icon}/></span>
                 <span className="text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-indigo-400">→</span>
               </div>
-              <p className="truncate text-[10px] font-medium text-slate-500 sm:text-xs">{card.label}</p>
+              <p className="truncate text-xs font-semibold text-slate-600 sm:text-sm">{card.label}</p>
               <p className={`mt-1 truncate font-heading text-lg font-bold tracking-tight sm:text-2xl ${card.color}`}>{data ? card.value : '—'}</p>
-              <p className="mt-1 text-[9px] text-slate-400 sm:text-[10px]">{isBn ? 'আজকের হিসাব' : "Today's total"}</p>
+              <p className="mt-1 text-[11px] leading-snug text-slate-500 sm:text-xs">{isBn ? 'আজকের হিসাব' : "Today's total"}</p>
             </article>
           ))}
         </div>
@@ -217,7 +217,7 @@ export function DashboardHome() {
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-slate-50 px-3 py-2.5">
-      <p className="text-[10px] font-medium text-slate-400">{label}</p>
+      <p className="text-xs font-medium text-slate-500">{label}</p>
       <b className="mt-1 block font-heading text-base font-bold text-slate-800">{value}</b>
     </div>
   );
