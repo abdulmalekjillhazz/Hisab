@@ -347,13 +347,13 @@ export function SalesPage() {
         <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/50 p-4">
           <form
             onSubmit={handleSubmit(submit)}
-            className="max-h-[92vh] w-full max-w-3xl space-y-4 overflow-auto rounded-2xl bg-white p-6"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-3xl space-y-4 overflow-y-auto overscroll-contain rounded-2xl bg-white p-4 sm:p-6"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-lg font-bold">
                 {locale === 'bn' ? 'নতুন ক্যাশ মেমো / বিক্রি (POS)' : 'Create POS Sale / Cash Memo'}
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
                 <button
                   type="button"
                   className="btn-soft text-xs"
@@ -367,7 +367,7 @@ export function SalesPage() {
                 </button>
                 {customers.length > 0 && (
                   <select
-                    className="field py-1.5 text-xs max-w-[220px]"
+                    className="field min-w-0 w-full max-w-full py-1.5 text-xs sm:w-[220px] sm:max-w-[220px]"
                     onChange={(e) => {
                       const c = customers.find((x) => x._id === e.target.value);
                       if (c) {
@@ -413,10 +413,10 @@ export function SalesPage() {
 
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
               <b>{locale === 'bn' ? 'বিক্রিত পণ্যের তালিকা' : 'Sale Items'}</b>
-              <div className="flex items-center gap-2">
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
                 <input
                   type="text"
-                  className="field py-1.5 text-xs max-w-[200px]"
+                  className="field min-w-0 w-full max-w-full flex-1 py-1.5 text-xs sm:w-[200px] sm:max-w-[200px]"
                   placeholder={locale === 'bn' ? 'পণ্য ফিল্টার করুন...' : 'Filter products...'}
                   value={prodFilter}
                   onChange={(e) => setProdFilter(e.target.value)}

@@ -30,8 +30,8 @@ export function Sidebar({ shopName = 'Ashik Electric', avatar = '', category = '
             <BusinessCategoryIcon category={category} className="h-6 w-6 text-white" />
           )}
         </span>
-        <span className="max-[700px]:hidden">
-          <b className="block font-heading text-base font-bold text-white tracking-wide">
+        <span className="min-w-0 max-[700px]:hidden">
+          <b className="block max-w-[150px] truncate font-heading text-base font-bold tracking-wide text-white">
             {shopName}
           </b>
           <small className="text-xs text-slate-400 font-mono">Store Manager</small>

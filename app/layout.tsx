@@ -30,7 +30,6 @@ const bengali = Noto_Sans_Bengali({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: 'cover',
   themeColor: '#1E293B',
 };

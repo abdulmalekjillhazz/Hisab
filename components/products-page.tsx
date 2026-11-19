@@ -182,7 +182,7 @@ export function ProductsPage() {
 
       <section className="panel p-3 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center gap-2 sm:mb-4 sm:gap-3">
-          <div className="relative flex-1 sm:max-w-xs">
+          <div className="relative min-w-0 flex-1 sm:max-w-xs">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">⌕</span>
             <input
             className="field w-full pl-9"
@@ -359,7 +359,7 @@ export function ProductsPage() {
         <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/50 p-4">
           <form
             onSubmit={handleSubmit(save)}
-            className="max-h-[90vh] w-full max-w-xl space-y-3 overflow-auto rounded-2xl bg-white p-6"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-xl space-y-3 overflow-y-auto overscroll-contain rounded-2xl bg-white p-4 sm:p-6"
           >
             <h3 className="text-lg font-bold">
               {edit
@@ -384,7 +384,7 @@ export function ProductsPage() {
                   <input
                     type="file"
                     accept="image/*"
-                    className="field flex-1 text-xs"
+                    className="field min-w-0 flex-1 text-xs"
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f && f.size > 5 * 1024 * 1024) {

@@ -282,7 +282,7 @@ export function CustomersPage() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4 backdrop-blur-sm">
           <form
             onSubmit={collectDue}
-            className="w-full max-w-sm space-y-3.5 rounded-2xl bg-white p-5 shadow-2xl border border-line"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-sm space-y-3.5 overflow-y-auto overscroll-contain rounded-2xl border border-line bg-white p-4 shadow-2xl sm:p-5"
           >
             <div className="flex items-center justify-between border-b border-line pb-2.5">
               <h3 className="font-heading text-base font-bold text-ink">

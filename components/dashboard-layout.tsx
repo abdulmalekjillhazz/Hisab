@@ -158,8 +158,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       {/* Main Content Area: Zero margin on mobile, margin only on desktop */}
       <main className="min-h-screen px-3 py-3 safe-top pb-24 md:pb-6 md:ml-[250px] sm:px-6 sm:py-6">
         {/* Top Header */}
-        <header className="mb-3 sm:mb-5 flex items-center justify-between border-b border-line/70 pb-2.5 sm:pb-3">
-          <div className="flex items-center gap-2">
+        <header className="mb-3 flex min-w-0 items-center justify-between gap-2 border-b border-line/70 pb-2.5 sm:mb-5 sm:pb-3">
+          <div className="flex min-w-0 items-center gap-2">
             <Link
               href="/profile"
               className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-white text-xs font-bold text-slate-600 shadow-sm active:scale-95 transition md:hidden"
@@ -171,17 +171,17 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <span>{data?.user?.name?.trim().charAt(0).toUpperCase() || 'A'}</span>
               )}
             </Link>
-            <div>
-              <h1 className="font-heading text-base sm:text-2xl font-bold tracking-tight text-ink leading-tight">
+            <div className="min-w-0">
+              <h1 className="truncate font-heading text-base font-bold leading-tight tracking-tight text-ink sm:text-2xl">
                 {locale === 'bn' ? currentTitle.bn : currentTitle.en}
               </h1>
-              <p className="text-[10px] sm:text-xs text-muted font-medium">
+              <p className="truncate text-[10px] font-medium text-muted sm:text-xs">
                 {ownerName || data?.user?.name ? `${ownerName || data?.user?.name} • ` : ''}{shopName}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
               className="btn-soft text-xs py-1 px-2.5 rounded-lg active:scale-95 transition"
               onClick={() => setLocale(locale === 'en' ? 'bn' : 'en')}
